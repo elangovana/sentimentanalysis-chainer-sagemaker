@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - apt-get update
+      - apt-get install zip
+  pre_build:
+    commands:
+      - echo Nothing to pre_build..
+  build:
+    commands:
+      - pip install -r requirements.txt
+  post_build:
+    commands:
+      - echo creating package
+
+      - zip -r sentimentanalysis_chainer.zip .
+
+      - mkdir buildoutput
+      - cp sentimentanalysis_chainer.zip ./buildoutput
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: buildoutput
