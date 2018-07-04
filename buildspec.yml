@@ -10,8 +10,9 @@ phases:
       - pip install pytest
   build:
     commands:
-      - pip install -r custom_chainer/requirements.txt -t custom_chainer
+      - pip install -r custom_chainer/requirements.txt
       - pytest
+      - pip install -r custom_chainer/requirements.txt  -t custom_chainer
   post_build:
     commands:
       - echo creating package
