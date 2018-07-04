@@ -7,11 +7,11 @@ phases:
       - apt-get install zip
   pre_build:
     commands:
-      - pip install pytest -t custom_chainer
+      - pip install pytest
   build:
     commands:
       - pip install -r custom_chainer/requirements.txt -t custom_chainer
-      - cd custom_chainer && pytest && cd ..
+      - pytest
   post_build:
     commands:
       - echo creating package
