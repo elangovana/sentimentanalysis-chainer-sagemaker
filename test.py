@@ -43,14 +43,15 @@ def run_online(gpu, filepath):
     test_data = data_processor.read_data(filepath, setup['char_based'])
     for row in test_data:
         tokens, labels = row[0], row[1]
+        print(tokens)
         xs = nlp_utils.transform_to_array([tokens], vocab, with_label=False)
         xs = nlp_utils.convert_seq(xs, device=gpu, with_label=False)
         with chainer.using_config('train', False), chainer.no_backprop_mode():
             prob = model.predict(xs, softmax=True)[0]
         answer = int(model.xp.argmax(prob))
         score = float(prob[answer])
-        print('{}\t{:.4f}\t{}'.format(answer, score, ' '.join(tokens)))
-
+        #print('{}\t{:.4f}\t{}'.format(answer, score, ' '.join(tokens)))
+        print('{}\t{:.4f}'.format(answer, score))
 
 def run_batch(gpu, batchsize=64):
     # predict labels by batch
@@ -63,7 +64,8 @@ def run_batch(gpu, batchsize=64):
         answers = model.xp.argmax(probs, axis=1)
         scores = probs[model.xp.arange(answers.size), answers].tolist()
         for words, answer, score in zip(words_batch, answers, scores):
-            print('{}\t{:.4f}\t{}'.format(answer, score, ' '.join(words)))
+            #print('{}\t{:.4f}\t{}'.format(answer, score, ' '.join(words)))
+            print('{}\t{:.4f}'.format(answer, score))
 
     batch = []
     for l in sys.stdin:
