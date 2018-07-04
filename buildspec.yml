@@ -7,10 +7,11 @@ phases:
       - apt-get install zip
   pre_build:
     commands:
-      - echo Nothing to pre_build..
+      - pip install pytest
   build:
     commands:
       - pip install -r requirements.txt
+      - pytest
   post_build:
     commands:
       - echo creating package
