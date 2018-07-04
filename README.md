@@ -3,12 +3,12 @@ Sentiment analysis using chainer and sagemaker
 
 
 # Run
-##Train
+##Train locally
 ```bash
-python train.py train.csv  --gpu -1  --epoch 1000
+python custom_chainer/train.py  custom_chainer/tests/data/sample_train.csv   -g -1  --epoch 100 --out result
 ```
 
-##Test
+##Test locally
 ```bash
 python test.py --gpu -1 --model-setup result/args.json --testset  test.csv
 ```
