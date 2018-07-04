@@ -19,7 +19,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         description='Chainer example: Text Classification')
-    parser.add_argument('traindata',
+    parser.add_argument('--traindata', required=True,
                         help='The dataset file with respect to the train directory')
     parser.add_argument('--traindata-dir',
                         help='The directory containing training artifacts such as training data', default=os.environ.get('SM_CHANNEL_TRAIN', "."))
