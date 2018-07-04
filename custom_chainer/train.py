@@ -19,17 +19,21 @@ def main():
 
     parser = argparse.ArgumentParser(
         description='Chainer example: Text Classification')
-    parser.add_argument('train_dataset',
-                        help='The dataset file')
+    parser.add_argument('traindata',
+                        help='The dataset file with respect to the train directory')
+    parser.add_argument('--traindata-dir',
+                        help='The directory containing training artifacts such as training data', default=os.environ.get('SM_CHANNEL_TRAIN', "."))
     parser.add_argument('--testdata', '-td',
-                        help='The test dataset file', default=None)
+                        help='The test dataset file with respect to the test directory', default=None)
+    parser.add_argument('--testdata-dir', '-tdir',
+                        help='The directory containing test artifacts such as test data', default=os.environ.get('SM_CHANNEL_TEST', "."))
     parser.add_argument('--batchsize', '-b', type=int, default=64,
                         help='Number of images in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=30,
                         help='Number of sweeps over the dataset to train')
-    parser.add_argument('--gpu', '-g', type=int, default=-1,
+    parser.add_argument('--gpu', '-g', type=int, default=os.environ.get('SM_NUM_GPUS', -1),
                         help='GPU ID (negative value indicates CPU)')
-    parser.add_argument('--out', '-o', default='result',
+    parser.add_argument('--out', '-o', default=os.environ.get('SM_OUTPUT_DATA_DIR', "result_data"),
                         help='Directory to output the result')
     parser.add_argument('--unit', '-u', type=int, default=300,
                         help='Number of units')
@@ -48,11 +52,13 @@ def main():
 
 
     #args parse
+
     args_dict = args.__dict__
     batchsize = args.batchsize
     model = args.model
-    validation_set = args.testdata
-    dataset = [args.train_dataset, validation_set] if validation_set is not None else [args.train_dataset]
+    training_set= os.path.join(args.traindata_dir, args.traindata)
+    validation_set = os.path.join(args.testdata_dir, args.testdata) if args.testdata is not None else None
+    dataset = [training_set, validation_set] if validation_set is not None else [training_set]
     char_based = args.char_based
     no_layers = args.layer
     unit = args.unit
@@ -121,11 +127,12 @@ def run_train(args_dict, batchsize, char_based, current_datetime, dataset, dropo
     # Save vocabulary and model's setting
     if not os.path.isdir(out):
         os.mkdir(out)
-    current = os.path.dirname(os.path.abspath(__file__))
-    vocab_path = os.path.join(current, out, 'vocab.json')
+
+    vocab_path = os.path.join(out, 'vocab.json')
+
     with open(vocab_path, 'w') as f:
         json.dump(vocab, f)
-    model_path = os.path.join(current, out, 'best_model.npz')
+    model_path = os.path.join( out, 'best_model.npz')
     model_setup = args_dict
     model_setup['vocab_path'] = vocab_path
     model_setup['model_path'] = model_path
