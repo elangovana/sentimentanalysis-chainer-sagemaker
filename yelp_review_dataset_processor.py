@@ -48,16 +48,24 @@ class YelpReviewDatasetProcessor:
             # Ignore header
             next(csv_reader)
             for l in csv_reader:
-                # Create label
-                rating = int(l[3])
-                label = 0
-                if rating > 3:
-                    label = 1
-                elif rating < 3:
-                    label = -1
-
-                review_text = l[5]
-
-                tokens = split_text(normalize_text(review_text), char_based)
+                tokens, label =self.process_line(char_based,  l)
                 dataset.append((tokens, label))
         return dataset
+
+    def process_line(self, char_based,  l):
+        # Create label
+
+        rating = int(l[3])
+        label = 0
+        if rating > 3:
+            label = 1
+        elif rating < 3:
+            label = -1
+        review_text = l[5]
+        tokens = self.extract_tokens(char_based, review_text)
+        return tokens,label
+
+
+    def extract_tokens(self, char_based, review_text):
+        tokens = split_text(normalize_text(review_text), char_based)
+        return tokens
