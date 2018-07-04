@@ -15,6 +15,8 @@ from yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 def main():
     current_datetime = '{}'.format(datetime.datetime.today())
+
+
     parser = argparse.ArgumentParser(
         description='Chainer example: Text Classification')
     parser.add_argument('train_dataset',
