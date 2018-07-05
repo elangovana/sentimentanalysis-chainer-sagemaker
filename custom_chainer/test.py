@@ -37,10 +37,15 @@ def setup_model(args):
     return model, vocab, setup
 
 
-def run_online(gpu, filepath):
+def run_online(gpu, testdatafile, model, vocab, setup_json):
     # predict labels online
     data_processor = YelpReviewDatasetProcessor()
-    test_data = data_processor.read_data(filepath, setup['char_based'])
+    test_data = data_processor.read_data(testdatafile, setup_json['char_based'])
+    run_inference(gpu, test_data, model, vocab)
+
+
+def run_inference(gpu, test_data, model, vocab):
+    result = []
     for row in test_data:
         tokens, labels = row[0], row[1]
         print(tokens)
@@ -50,10 +55,12 @@ def run_online(gpu, filepath):
             prob = model.predict(xs, softmax=True)[0]
         answer = int(model.xp.argmax(prob))
         score = float(prob[answer])
-        #print('{}\t{:.4f}\t{}'.format(answer, score, ' '.join(tokens)))
+        # print('{}\t{:.4f}\t{}'.format(answer, score, ' '.join(tokens)))
         print('{}\t{:.4f}'.format(answer, score))
+        result.append((answer, score))
 
-def run_batch(gpu, batchsize=64):
+
+def run_batch(gpu, model, vocab, setup_json, batchsize=64):
     # predict labels by batch
 
     def predict_batch(words_batch):
@@ -77,13 +84,24 @@ def run_batch(gpu, batchsize=64):
             print('# blank line')
             continue
         text = nlp_utils.normalize_text(l)
-        words = nlp_utils.split_text(text, char_based=setup['char_based'])
+        words = nlp_utils.split_text(text, char_based=setup_json['char_based'])
         batch.append(words)
         if len(batch) >= batchsize:
             predict_batch(batch)
             batch = []
     if batch:
         predict_batch(batch)
+
+
+def run_test():
+    #global model, vocab, setup
+    model, vocab, setup = setup_model(args)
+    if args.gpu >= 0:
+        run_batch(args.gpu,model,vocab,setup)
+    else:
+        run_online(args.gpu, args.testset,model, vocab, setup)
+
+
 
 
 if __name__ == '__main__':
@@ -98,8 +116,4 @@ if __name__ == '__main__':
                         help='Model setup dictionary.')
     args = parser.parse_args()
 
-    model, vocab, setup = setup_model(args)
-    if args.gpu >= 0:
-        run_batch(args.gpu)
-    else:
-        run_online(args.gpu, args.testset)
+    run_test()

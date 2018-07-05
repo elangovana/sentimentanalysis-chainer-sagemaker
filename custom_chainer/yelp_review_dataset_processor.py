@@ -42,15 +42,20 @@ class YelpReviewDatasetProcessor:
         :param char_based:
         :return:
         """
-        dataset = []
+
         with io.open(path, encoding='utf-8', errors='ignore') as f:
-            csv_reader = csv.reader(f, delimiter=',', quotechar='"')
-            # Ignore header
-            next(csv_reader)
-            for l in csv_reader:
-                tokens, label =self.process_line(char_based,  l)
-                dataset.append((tokens, label))
+            dataset = self.parse_csv(f, char_based)
         return dataset
+
+    def parse_csv(self, handle, char_based, has_header=True):
+        csv_reader = csv.reader(handle, delimiter=',', quotechar='"')
+        # Ignore header
+        if has_header: next(csv_reader)
+        dataset = []
+        for l in csv_reader:
+            tokens, label = self.process_line(char_based, l)
+            dataset.append((tokens, label))
+        return  dataset
 
     def process_line(self, char_based,  l):
         # Create label

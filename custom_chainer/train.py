@@ -5,11 +5,14 @@ import json
 import os
 
 import chainer
+from io import StringIO
 from chainer import training
 from chainer.training import extensions
 
+
 import nets
 from nlp_utils import convert_seq
+from test import setup_model, run_inference
 from yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
@@ -143,6 +146,26 @@ def run_train(args_dict, batchsize, char_based, current_datetime, dataset, dropo
     # Run the training
     trainer.run()
 
+
+def model_fn(model_dir):
+    return  (setup_model({"gpu":os.environ.get('SM_NUM_GPUS', 0)-1
+                 ,"model_setup": os.path.join(model_dir, "args.json")}))
+
+
+def input_fn(request_body, request_content_type):
+    if request_content_type == "text/plain":
+        processor = YelpReviewDatasetProcessor()
+        return processor.parse_csv(StringIO(request_body))
+    else:
+        raise ValueError("Content_type {} is not recognised".format(request_content_type))
+
+def predict_fn(input_object, model):
+    run_inference()
+
+
+# Serialize the prediction result into the desired response content type
+def output_fn(prediction, response_content_type):
+    pass
 
 if __name__ == '__main__':
     main()
