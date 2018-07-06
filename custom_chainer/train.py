@@ -4,16 +4,15 @@ import csv
 import datetime
 import json
 import os
+from io import StringIO
 
 import chainer
-from io import StringIO
 from chainer import training
 from chainer.training import extensions
 
-
 import nets
 from nlp_utils import convert_seq
-from test import setup_model, run_inference, extract_model
+from test import run_inference, extract_model
 from yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
