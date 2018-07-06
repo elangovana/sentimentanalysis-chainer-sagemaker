@@ -13,11 +13,18 @@ from yelp_review_dataset_processor import YelpReviewDatasetProcessor
 def setup_model(args):
     sys.stderr.write(json.dumps(args.__dict__, indent=2) + '\n')
     setup = json.load(open(args.model_setup))
+    gpu = args.gpu
     sys.stderr.write(json.dumps(setup, indent=2) + '\n')
 
-    vocab = json.load(open(setup['vocab_path']))
-    n_class = setup['n_class']
+    model, vocab = extract_model(gpu, setup, setup['vocab_path'], setup['model_path'])
 
+    return model, vocab, setup
+
+
+def extract_model(gpu, setup, vocab_path, model_path):
+    with open(vocab_path) as vocab_handle:
+        vocab = json.load(vocab_handle)
+    n_class = setup['n_class']
     # Setup a model
     if setup['model'] == 'rnn':
         Encoder = nets.RNNEncoder
@@ -25,29 +32,29 @@ def setup_model(args):
         Encoder = nets.CNNEncoder
     elif setup['model'] == 'bow':
         Encoder = nets.BOWMLPEncoder
-    encoder = Encoder(n_layers=setup['layer'], n_vocab=len(vocab),
+    encoder = Encoder(n_layers=setup['no_layers'], n_vocab=len(vocab),
                       n_units=setup['unit'], dropout=setup['dropout'])
     model = nets.TextClassifier(encoder, n_class)
-    chainer.serializers.load_npz(setup['model_path'], model)
-    if args.gpu >= 0:
+    chainer.serializers.load_npz(model_path, model)
+    if gpu >= 0:
         # Make a specified GPU current
-        chainer.backends.cuda.get_device_from_id(args.gpu).use()
+        chainer.backends.cuda.get_device_from_id(gpu).use()
         model.to_gpu()  # Copy the model to the GPU
-
-    return model, vocab, setup
+    return model, vocab
 
 
 def run_online(gpu, testdatafile, model, vocab, setup_json):
     # predict labels online
     data_processor = YelpReviewDatasetProcessor()
     test_data = data_processor.read_data(testdatafile, setup_json['char_based'])
-    run_inference(gpu, test_data, model, vocab)
+    tokens_list = [r[0] for r in test_data]
+    run_inference(gpu, tokens_list, model, vocab)
 
 
 def run_inference(gpu, test_data, model, vocab):
     result = []
     for row in test_data:
-        tokens, labels = row[0], row[1]
+        tokens=row
         print(tokens)
         xs = nlp_utils.transform_to_array([tokens], vocab, with_label=False)
         xs = nlp_utils.convert_seq(xs, device=gpu, with_label=False)

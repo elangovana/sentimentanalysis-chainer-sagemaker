@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import csv
 import datetime
 import json
 import os
@@ -12,12 +13,12 @@ from chainer.training import extensions
 
 import nets
 from nlp_utils import convert_seq
-from test import setup_model, run_inference
+from test import setup_model, run_inference, extract_model
 from yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
 def main():
-    current_datetime = '{}'.format(datetime.datetime.today())
+
 
 
     parser = argparse.ArgumentParser(
@@ -56,7 +57,7 @@ def main():
 
     #args parse
 
-    args_dict = args.__dict__
+
     batchsize = args.batchsize
     model = args.model
     training_set= os.path.join(args.traindata_dir, args.traindata)
@@ -70,13 +71,16 @@ def main():
     epoch = args.epoch
     out = args.out
 
-    run_train(args_dict, batchsize, char_based, current_datetime, dataset, dropout, epoch, gpu, model, no_layers, out,
+    run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_layers, out,
               unit)
 
 
-def run_train(args_dict, batchsize, char_based, current_datetime, dataset, dropout, epoch, gpu, model, no_layers, out,
+def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_layers, out,
               unit):
     # Load a dataset
+    current_args = locals()
+    current_datetime = '{}'.format(datetime.datetime.today())
+
     data_processor = YelpReviewDatasetProcessor()
     train, test, vocab = data_processor.get_dataset(
         dataset, char_based=char_based)
@@ -135,37 +139,57 @@ def run_train(args_dict, batchsize, char_based, current_datetime, dataset, dropo
 
     with open(vocab_path, 'w') as f:
         json.dump(vocab, f)
-    model_path = os.path.join( out, 'best_model.npz')
-    model_setup = args_dict
+    model_path = os.path.join( out,  'best_model.npz')
+    model_setup = current_args
     model_setup['vocab_path'] = vocab_path
     model_setup['model_path'] = model_path
     model_setup['n_class'] = n_class
     model_setup['datetime'] = current_datetime
     with open(os.path.join(out, 'args.json'), 'w') as f:
-        json.dump(args_dict, f)
+        json.dump(model_setup, f)
     # Run the training
     trainer.run()
 
 
 def model_fn(model_dir):
-    return  (setup_model({"gpu":os.environ.get('SM_NUM_GPUS', 0)-1
-                 ,"model_setup": os.path.join(model_dir, "args.json")}))
+    with open(os.path.join(model_dir, "args.json")) as args_file:
+        setup_json =json.load(args_file)
+    gpu = os.environ.get('SM_NUM_GPUS', 0) - 1
+    vocab_path =os.path.join(model_dir,  os.path.basename(setup_json["vocab_path"]))
+    model_path =os.path.join(model_dir,  os.path.basename(setup_json["model_path"]))
+
+    model, vocab = extract_model(gpu, setup_json, vocab_path, model_path)
+    return  (model, vocab , setup_json)
+
+
+def parse_csv(handle):
+    data_processor =YelpReviewDatasetProcessor()
+    csv_reader = csv.reader(handle, delimiter=',', quotechar='"')
+
+    dataset = []
+    for l in csv_reader:
+        tokens = data_processor.extract_tokens(False,l[0])
+        dataset.append(tokens)
+    return  dataset
 
 
 def input_fn(request_body, request_content_type):
+
     if request_content_type == "text/plain":
-        processor = YelpReviewDatasetProcessor()
-        return processor.parse_csv(StringIO(request_body))
+
+        return parse_csv(StringIO(request_body))
     else:
         raise ValueError("Content_type {} is not recognised".format(request_content_type))
 
 def predict_fn(input_object, model):
-    run_inference()
+    peristsed_model, vocab, setup = model
+    run_inference(os.environ.get('SM_NUM_GPUS', 0)-1, input_object, peristsed_model, vocab)
 
 
 # Serialize the prediction result into the desired response content type
 def output_fn(prediction, response_content_type):
-    pass
+    if response_content_type == "text/plain":
+     return json.dumps( prediction)
 
 if __name__ == '__main__':
     main()
