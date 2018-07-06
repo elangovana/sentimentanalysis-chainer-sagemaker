@@ -11,7 +11,7 @@ from pathlib import Path
 @ddt
 class TestModel_fn(TestCase):
 
-    @data(("data/sample_train.csv", "data/result", "data/sample_test.csv"))
+    @data(("data/sample_train.csv", "data", "data/sample_test.csv"))
     @unpack
     def test_model_fn(self, dataset, out_dir, testdata):
         # Arrange
