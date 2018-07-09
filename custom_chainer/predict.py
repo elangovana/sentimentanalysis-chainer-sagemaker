@@ -1,8 +1,11 @@
 import argparse
+import csv
 import json
 import sys
+from io import StringIO
 
 import chainer
+import os
 
 from custom_chainer import nlp_utils, nets
 from custom_chainer.yelp_review_dataset_processor import YelpReviewDatasetProcessor
@@ -97,28 +100,41 @@ def run_batch(gpu, model, vocab, setup_json, batchsize=64):
     if batch:
         predict_batch(batch)
 
+def get_model(model_dir, gpu = -1):
+    with open(os.path.join(model_dir, "args.json")) as args_file:
+        setup_json =json.load(args_file)
 
-def run_test():
-    #global model, vocab, setup
-    model, vocab, setup = setup_model(args)
-    if args.gpu >= 0:
-        run_batch(args.gpu,model,vocab,setup)
+    vocab_path =os.path.join(model_dir,  os.path.basename(setup_json["vocab_path"]))
+    model_path =os.path.join(model_dir,  os.path.basename(setup_json["model_path"]))
+
+    model, vocab = extract_model(gpu, setup_json, vocab_path, model_path)
+    return  (model, vocab , setup_json)
+
+
+def get_formatted_input(request_body, request_content_type):
+
+    if request_content_type == "text/plain":
+
+        return parse_csv(StringIO(request_body))
     else:
-        run_online(args.gpu, args.testset,model, vocab, setup)
+        raise ValueError("Content_type {} is not recognised".format(request_content_type))
+
+def parse_csv(handle):
+    data_processor =YelpReviewDatasetProcessor()
+    csv_reader = csv.reader(handle, delimiter=',', quotechar='"')
+
+    dataset = []
+    for l in csv_reader:
+        tokens = data_processor.extract_tokens(False,l[0])
+        dataset.append(tokens)
+    return  dataset
+
+def predict(input_object, model, gpu=-1):
+    peristsed_model, vocab, setup = model
+    return run_inference(gpu, input_object, peristsed_model, vocab)
 
 
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='Chainer example: Text Classification')
-    parser.add_argument('--gpu', '-g', type=int, default=-1,
-                        help='GPU ID (negative value indicates CPU)')
-    parser.add_argument('--model-setup', required=True,
-                        help='Model setup dictionary.')
-
-    parser.add_argument('--testset', required=True,
-                        help='Model setup dictionary.')
-    args = parser.parse_args()
-
-    run_test()
+# Serialize the prediction result into the desired response content type
+def get_formatted_output(prediction, response_content_type):
+    if response_content_type == "text/plain":
+     return json.dumps( prediction)
