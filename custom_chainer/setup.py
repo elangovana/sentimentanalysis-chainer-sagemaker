@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='custom_chainer',
     version='0.1',
-    packages=['custom_chainer'],
+    packages=[],
     url='',
     license='',
     author='Aparna Elangovan',
