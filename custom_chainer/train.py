@@ -12,7 +12,7 @@ from chainer.training import extensions
 
 from custom_chainer import nets
 from custom_chainer.nlp_utils import convert_seq
-from custom_chainer.test import extract_model, run_inference
+from custom_chainer.predict import extract_model, run_inference
 from custom_chainer.yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
