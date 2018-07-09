@@ -7,8 +7,8 @@ from io import StringIO
 import chainer
 import os
 
-from custom_chainer import nlp_utils, nets
-from custom_chainer.yelp_review_dataset_processor import YelpReviewDatasetProcessor
+import nlp_utils, nets
+from yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
 def setup_model(args):

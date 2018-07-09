@@ -1,6 +1,6 @@
 import argparse
 
-from custom_chainer.predict import run_batch, setup_model, run_online
+from predict import run_batch, setup_model, run_online
 
 
 def run_test():

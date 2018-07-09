@@ -3,7 +3,7 @@ import io
 
 import numpy
 
-from custom_chainer.nlp_utils import make_vocab, transform_to_array, split_text, normalize_text
+from nlp_utils import make_vocab, transform_to_array, split_text, normalize_text
 
 
 class YelpReviewDatasetProcessor:

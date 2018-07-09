@@ -6,10 +6,10 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 
-from custom_chainer import nets
-
-from custom_chainer.nlp_utils import convert_seq
-from custom_chainer.yelp_review_dataset_processor import YelpReviewDatasetProcessor
+import nets
+from nets import CNNEncoder, RNNEncoder, BOWMLPEncoder
+from nlp_utils import convert_seq
+from yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
 def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_layers, out,
@@ -30,11 +30,11 @@ def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_la
     test_iter = chainer.iterators.SerialIterator(test, batchsize,
                                                  repeat=False, shuffle=False)
     # Setup a model
-    Encoder = nets.CNNEncoder
+    Encoder = CNNEncoder
     if model == 'rnn':
-        Encoder = nets.RNNEncoder
+        Encoder = RNNEncoder
     elif model == 'bow':
-        Encoder = nets.BOWMLPEncoder
+        Encoder = BOWMLPEncoder
     encoder = Encoder(n_layers=no_layers, n_vocab=len(vocab),
                       n_units=unit, dropout=dropout)
     model = nets.TextClassifier(encoder, n_class)

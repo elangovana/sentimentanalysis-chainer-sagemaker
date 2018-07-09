@@ -2,9 +2,9 @@ import argparse
 import json
 import os
 
-from custom_chainer.predict import get_model, get_formatted_input, predict, \
+from predict import get_model, get_formatted_input, predict, \
     get_formatted_output
-from custom_chainer.train import run_train
+from train import run_train
 
 
 def train():
