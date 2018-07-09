@@ -3,10 +3,8 @@ import io
 
 import numpy
 
-from nlp_utils import make_vocab
-from nlp_utils import normalize_text
-from nlp_utils import split_text
-from nlp_utils import transform_to_array
+from custom_chainer.nlp_utils import make_vocab, transform_to_array, split_text, normalize_text
+
 
 class YelpReviewDatasetProcessor:
     def get_dataset(self, name_path_list, vocab=None, shrink=1,
