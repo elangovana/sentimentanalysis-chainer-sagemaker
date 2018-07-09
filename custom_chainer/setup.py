@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='custom_chainer',
-    version='',
+    version='0.1',
     packages=['custom_chainer'],
     url='',
     license='',
