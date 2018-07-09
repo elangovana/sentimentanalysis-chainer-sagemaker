@@ -1,13 +1,10 @@
 import argparse
-import csv
 import json
 import os
-from io import StringIO
 
-from custom_chainer.predict import extract_model, run_inference, get_model, get_formatted_input, predict, \
+from custom_chainer.predict import get_model, get_formatted_input, predict, \
     get_formatted_output
 from custom_chainer.train import run_train
-from custom_chainer.yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
 def train():
