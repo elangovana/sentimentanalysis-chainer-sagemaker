@@ -10,10 +10,10 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 
-import nets
-from nlp_utils import convert_seq
-from test import run_inference, extract_model
-from yelp_review_dataset_processor import YelpReviewDatasetProcessor
+from custom_chainer import nets
+from custom_chainer.nlp_utils import convert_seq
+from custom_chainer.test import extract_model, run_inference
+from custom_chainer.yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
 def main():

@@ -4,9 +4,8 @@ import sys
 
 import chainer
 
-import nets
-import nlp_utils
-from yelp_review_dataset_processor import YelpReviewDatasetProcessor
+from custom_chainer import nlp_utils, nets
+from custom_chainer.yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
 def setup_model(args):

@@ -4,7 +4,7 @@ from unittest import TestCase
 import os
 from ddt import ddt, data, unpack
 
-from train import model_fn, input_fn, predict_fn, output_fn, run_train
+from custom_chainer.train import model_fn, input_fn, predict_fn, output_fn, run_train
 
 from pathlib import Path
 
