@@ -115,7 +115,7 @@ def get_formatted_input(request_body, request_content_type):
 
     if request_content_type == "text/plain":
 
-        return parse_csv(StringIO(request_body))
+        return parse_csv(StringIO(request_body.decode("utf-8") ))
     else:
         raise ValueError("Content_type {} is not recognised".format(request_content_type))
 
