@@ -31,7 +31,7 @@ class TestModel_fn(TestCase):
             model = model_fn(temp_out)
 
             #TODO Clean up, pass this as input
-            input_object = input_fn(test_data_string, "text/plain")
+            input_object = input_fn(test_data_string.encode('utf-8'), "text/plain")
             prediction = predict_fn(input_object, model)
             actual = output_fn(prediction, "text/plain")
 
