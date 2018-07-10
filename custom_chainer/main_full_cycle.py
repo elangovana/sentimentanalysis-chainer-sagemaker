@@ -74,7 +74,7 @@ def model_fn(model_dir):
                 model_full_path = root
                 break
 
-    return get_model(model_dir,os.environ.get('SM_NUM_GPUS', 0) - 1 )
+    return get_model(model_full_path,os.environ.get('SM_NUM_GPUS', 0) - 1 )
 
 
 
