@@ -68,7 +68,8 @@ def train():
 def model_fn(model_dir):
     for root, subFolder, files in os.walk(model_dir):
         for item in files:
-            print(item)
+            print("{},{},{}".format( root, subFolder, item))
+
     return get_model(model_dir,os.environ.get('SM_NUM_GPUS', 0) - 1 )
 
 
