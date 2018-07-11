@@ -1,11 +1,12 @@
 import argparse
 import json
 import os
-
+import logging
 from predict import get_model, get_formatted_input, predict, \
     get_formatted_output
 from train import run_train
 
+logging.basicConfig(level=logging.DEBUG)
 
 def train():
 
@@ -42,7 +43,9 @@ def train():
     parser.add_argument('--char-based', action='store_true')
 
     args = parser.parse_args()
-    print(json.dumps(args.__dict__, indent=2))
+
+    logger = logging.getLogger(__name__)
+    logger.info("Invoking training with arguments \n ..",json.dumps(args.__dict__, indent=2))
 
 
     #args parse
@@ -79,18 +82,25 @@ def model_fn(model_dir):
 
 
 def input_fn(request_body, request_content_type):
-
+    logger = logging.getLogger(__name__)
+    logger.debug("Calling input fomatter for content_type ..".format(request_content_type))
     return get_formatted_input(request_body, request_content_type)
 
 
 
 def predict_fn(input_object, model):
+
     return predict(input_object, model, os.environ.get('SM_NUM_GPUS', 0)-1)
 
 
 # Serialize the prediction result into the desired response content type
 def output_fn(prediction, response_content_type):
-    return    get_formatted_output(prediction, response_content_type)
+    logger = logging.getLogger(__name__)
+
+    logger.debug("Calling output for content_type ..{}".format(response_content_type))
+    result =    get_formatted_output(prediction, response_content_type)
+    logger.debug("Recived output {} ..".format(result))
+    return result
 
 
 if __name__ == '__main__':

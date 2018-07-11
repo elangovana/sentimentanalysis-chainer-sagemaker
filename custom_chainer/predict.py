@@ -63,8 +63,6 @@ def run_inference(gpu, test_data, model, vocab):
             prob = model.predict(xs, softmax=True)[0]
         answer = int(model.xp.argmax(prob))
         score = float(prob[answer])
-        # print('{}\t{:.4f}\t{}'.format(answer, score, ' '.join(tokens)))
-        print('{}\t{:.4f}'.format(answer, score))
         result.append((answer, score))
     return result
 
