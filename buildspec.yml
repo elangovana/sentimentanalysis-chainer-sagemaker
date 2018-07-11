@@ -13,11 +13,12 @@ phases:
       - pip install -r custom_chainer/requirements.txt
       - pip install -r custom_chainer/requirements_test_only.txt
       - pytest
-      - pip install -r custom_chainer/requirements.txt  -t custom_chainer
+
   post_build:
     commands:
       - echo creating package
       - mkdir buildoutput
+      - pip install -r custom_chainer/requirements.txt  -t custom_chainer
       - cd custom_chainer && zip -r ../buildoutput/sentimentanalysis_chainer.zip . && cd ..
 
 
