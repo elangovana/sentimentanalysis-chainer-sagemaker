@@ -7,6 +7,8 @@ from predict import get_model, get_formatted_input, predict, \
 from train import run_train
 
 logging.basicConfig(level=logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
 
 def train():
 
@@ -99,7 +101,7 @@ def output_fn(prediction, response_content_type):
 
     logger.debug("Calling output for content_type ..{}".format(response_content_type))
     result =    get_formatted_output(prediction, response_content_type)
-    logger.debug("Recived output {} ..".format(result))
+    logger.debug("Received output {} ..".format(result))
     return result
 
 

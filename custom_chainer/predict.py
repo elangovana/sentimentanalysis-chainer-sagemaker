@@ -129,11 +129,11 @@ def parse_csv(handle):
     return  dataset
 
 def predict(input_object, model, gpu=-1):
-    peristsed_model, vocab, setup = model
-    return run_inference(gpu, input_object, peristsed_model, vocab)
+    persisted_model, vocab, setup = model
+    return run_inference(gpu, input_object, persisted_model, vocab)
 
 
 # Serialize the prediction result into the desired response content type
 def get_formatted_output(prediction, response_content_type):
     if response_content_type == "text/plain":
-     return json.dumps( prediction)
+        return json.dumps( prediction)
