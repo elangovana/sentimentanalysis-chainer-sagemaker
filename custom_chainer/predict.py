@@ -135,5 +135,5 @@ def predict(input_object, model, gpu=-1):
 
 # Serialize the prediction result into the desired response content type
 def get_formatted_output(prediction, response_content_type):
-    if response_content_type == "text/plain":
+    if response_content_type == "text/plain" or response_content_type == "*/*":
         return json.dumps( prediction)
