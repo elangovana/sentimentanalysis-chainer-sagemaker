@@ -6,12 +6,12 @@ from predict import get_model, get_formatted_input, predict, \
     get_formatted_output
 from train import run_train
 
+#TODO: Check why logging doesnt work on SageMaker
 logging.basicConfig(level=logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 
 def train():
-
 
 
     parser = argparse.ArgumentParser(
@@ -100,6 +100,7 @@ def output_fn(prediction, response_content_type):
     logger = logging.getLogger(__name__)
 
     logger.debug("Calling output for content_type ..{}".format(response_content_type))
+    print(response_content_type)
     result =    get_formatted_output(prediction, response_content_type)
     logger.debug("Received output {} ..".format(result))
     return result
