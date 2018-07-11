@@ -12,7 +12,8 @@ ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
 
 def train():
-
+    logger = logging.getLogger(__name__)
+    print("Log level is {}".format(logger.level))
 
     parser = argparse.ArgumentParser(
         description='Chainer example: Text Classification')
@@ -46,7 +47,7 @@ def train():
 
     args = parser.parse_args()
 
-    logger = logging.getLogger(__name__)
+
     logger.info("Invoking training with arguments \n ..",json.dumps(args.__dict__, indent=2))
 
 
@@ -85,7 +86,7 @@ def model_fn(model_dir):
 
 def input_fn(request_body, request_content_type):
     logger = logging.getLogger(__name__)
-    logger.debug("Calling input fomatter for content_type ..".format(request_content_type))
+    logger.debug("Calling input fomatter for content_type ..{}".format(request_content_type))
     return get_formatted_input(request_body, request_content_type)
 
 
