@@ -6,14 +6,10 @@ from predict import get_model, get_formatted_input, predict, \
     get_formatted_output
 from train import run_train
 
-#TODO: Check why logging doesnt work on SageMaker
-logging.basicConfig(level=logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+
 
 def train():
     logger = logging.getLogger(__name__)
-    print("Log level is {}".format(logger.getEffectiveLevel()))
 
     parser = argparse.ArgumentParser(
         description='Chainer example: Text Classification')
@@ -106,4 +102,8 @@ def output_fn(prediction, response_content_type):
 
 
 if __name__ == '__main__':
+    # TODO: Check why logging doesnt work on SageMaker
+    logging.basicConfig(level=logging.DEBUG, handlers=[
+        logging.StreamHandler()])
+
     train()
