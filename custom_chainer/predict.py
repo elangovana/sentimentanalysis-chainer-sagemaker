@@ -66,6 +66,7 @@ def run_inference(gpu, test_data, model, vocab):
         # print('{}\t{:.4f}\t{}'.format(answer, score, ' '.join(tokens)))
         print('{}\t{:.4f}'.format(answer, score))
         result.append((answer, score))
+    return result
 
 
 def run_batch(gpu, model, vocab, setup_json, batchsize=64):
