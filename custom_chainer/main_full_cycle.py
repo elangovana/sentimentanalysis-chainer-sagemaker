@@ -13,7 +13,7 @@ ch.setLevel(logging.DEBUG)
 
 def train():
     logger = logging.getLogger(__name__)
-    print("Log level is {}".format(logger.level))
+    print("Log level is {}".format(logger.getEffectiveLevel()))
 
     parser = argparse.ArgumentParser(
         description='Chainer example: Text Classification')
@@ -99,9 +99,7 @@ def predict_fn(input_object, model):
 # Serialize the prediction result into the desired response content type
 def output_fn(prediction, response_content_type):
     logger = logging.getLogger(__name__)
-
     logger.debug("Calling output for content_type ..{}".format(response_content_type))
-    print(response_content_type)
     result =    get_formatted_output(prediction, response_content_type)
     logger.debug("Received output {} ..".format(result))
     return result
