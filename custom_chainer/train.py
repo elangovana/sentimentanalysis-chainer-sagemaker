@@ -12,7 +12,7 @@ from encoders.BOWNLPEncoder import BOWMLPEncoder
 from encoders.CNNEncoder import CNNEncoder
 from encoders.RNNEncoder import RNNEncoder
 from gpu_utils import convert_seq
-from dataprep.yelp_review_dataset_processor import YelpReviewDatasetProcessor
+from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
 
 def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_layers, out,
