@@ -7,10 +7,16 @@ import os
 import dataprep.YelpChainerDataset
 
 
-def split(file, first_size_percent=.7, seed=1572):
+def split(file, first_size_fraction=.7, seed=1572) -> tuple((chainer.datasets.sub_dataset, chainer.datasets.sub_dataset)):
+    """
+Splits a file into 2  sets such as training & test.
+    :param file: The file to split
+    :param first_size_fraction: The fraction of data to be polaced in the first set. Say if this value is .7, then 70% os the data is placed in the first set
+    :param seed: The random seed to fix
+    :return: 2 datasets
+    """
     dataset = dataprep.YelpChainerDataset.YelpChainerDataset(file, delimiter=",", encoding="utf-8", quote_charcter='"')
-    print(len(dataset))
-    first_size= int( len(dataset)*first_size_percent)
+    first_size= int(len(dataset) * first_size_fraction)
     first, second = chainer.datasets.split_dataset_random(dataset, first_size, seed=seed)
     return first,second
 
