@@ -3,7 +3,7 @@ import io
 
 import numpy
 
-from nlp_utils import make_vocab, transform_to_array, split_text, normalize_text
+from NlpUtils import split_text, normalize_text, make_vocab, transform_to_array
 
 
 class YelpReviewDatasetProcessor:
