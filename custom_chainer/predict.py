@@ -7,7 +7,13 @@ from io import StringIO
 import chainer
 import os
 
-import nlp_utils, nets
+import encoders.RNNEncoder
+
+import TextClassifier
+import encoders.BOWNLPEncoder
+import encoders.CNNEncoder
+import nlp_utils
+from encoders import RNNEncoder
 from yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
@@ -28,14 +34,14 @@ def extract_model(gpu, setup, vocab_path, model_path):
     n_class = setup['n_class']
     # Setup a model
     if setup['model'] == 'rnn':
-        Encoder = nets.RNNEncoder
+        Encoder = RNNEncoder.RNNEncoder
     elif setup['model'] == 'cnn':
-        Encoder = nets.CNNEncoder
+        Encoder = encoders.CNNEncoder.CNNEncoder
     elif setup['model'] == 'bow':
-        Encoder = nets.BOWMLPEncoder
+        Encoder = encoders.BOWNLPEncoder.BOWMLPEncoder
     encoder = Encoder(n_layers=setup['no_layers'], n_vocab=len(vocab),
                       n_units=setup['unit'], dropout=setup['dropout'])
-    model = nets.TextClassifier(encoder, n_class)
+    model = TextClassifier.TextClassifier(encoder, n_class)
     chainer.serializers.load_npz(model_path, model)
     if gpu >= 0:
         # Make a specified GPU current

@@ -2,7 +2,8 @@ import chainer
 import numpy
 from chainer import links as L, functions as F
 
-from nets import embed_init, block_embed
+from encoders.encoder_constants import embed_init
+from encoders.encoder_helpers import block_embed
 
 
 class BOWEncoder(chainer.Chain):

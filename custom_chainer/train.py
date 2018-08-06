@@ -6,8 +6,11 @@ import chainer
 from chainer import training
 from chainer.training import extensions
 
-import nets
-from nets import CNNEncoder, RNNEncoder, BOWMLPEncoder
+import TextClassifier
+
+from encoders.BOWNLPEncoder import BOWMLPEncoder
+from encoders.CNNEncoder import CNNEncoder
+from encoders.RNNEncoder import RNNEncoder
 from nlp_utils import convert_seq
 from yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
@@ -37,7 +40,7 @@ def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_la
         Encoder = BOWMLPEncoder
     encoder = Encoder(n_layers=no_layers, n_vocab=len(vocab),
                       n_units=unit, dropout=dropout)
-    model = nets.TextClassifier(encoder, n_class)
+    model = TextClassifier.TextClassifier(encoder, n_class)
     if gpu >= 0:
         # Make a specified GPU current
         chainer.backends.cuda.get_device_from_id(gpu).use()
