@@ -29,7 +29,8 @@ def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_la
     print('# vocab: {}'.format(len(vocab)))
     n_class = len(set([int(d[1]) for d in train]))
     print('# class: {}'.format(n_class))
-    train_iter = chainer.iterators.SerialIterator(train, batchsize)
+    # TODO: Make shuffle as option..Shuffling is set to false because assuming that the splitter is already run, which shuffles the data.
+    train_iter = chainer.iterators.SerialIterator(train, batchsize, shuffle=False)
     test_iter = chainer.iterators.SerialIterator(test, batchsize,
                                                  repeat=False, shuffle=False)
     # Setup a model
