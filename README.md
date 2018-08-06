@@ -1,14 +1,24 @@
 # sentimentanalysis-chainer-sagemaker
 Sentiment analysis using chainer and sagemaker
 
-
-# Run
-## 1. Train locally
+## Data prep
+This is to split the data file inot train and test set
+```bash
+export PYTHONPATH=./custom_chainer
+export inputyelpreviewfile=~/data/yelp_review.csv ## Specfy the path to the yelp review file
+export outputdatadir=~/data ##Specify the output directory to place the 2 output files
+python ./custom_chainer/dataprep/splitter.py $inputyelpreviewfile $outputdatadir --first-file-name yelp_review_train.shuffled.csv --second-file-name yelp_review_test.shuffled.csv
+```
+## How to run
+### 1. Train locally
 ```bash
 python custom_chainer/main_full_cycle.py  --traindata tests/data/sample_train.csv   -g -1  --epoch 100 --out result
 ```
 
-## 2. Test locally
+### 2. Test locally
 ```bash
 python custom_chainer/main_predict --gpu -1 --model-setup result/args.json --testset  tests/data/test.csv
 ```
+
+### 3. To use sagemaker
+Use the sentiment_analysis.ipynb notebook
