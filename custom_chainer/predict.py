@@ -15,7 +15,7 @@ import encoders.CNNEncoder
 import gpu_utils
 import nlp_utils
 from encoders import RNNEncoder
-from yelp_review_dataset_processor import YelpReviewDatasetProcessor
+from dataprep.yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
 def setup_model(args):

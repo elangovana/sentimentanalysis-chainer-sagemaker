@@ -1,7 +1,7 @@
 from unittest import TestCase
 import os
 from ddt import ddt, data, unpack
-from yelp_review_dataset_processor import YelpReviewDatasetProcessor
+from dataprep.yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
 @ddt
