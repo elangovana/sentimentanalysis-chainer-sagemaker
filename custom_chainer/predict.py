@@ -12,6 +12,7 @@ import encoders.RNNEncoder
 import TextClassifier
 import encoders.BOWNLPEncoder
 import encoders.CNNEncoder
+import gpu_utils
 import nlp_utils
 from encoders import RNNEncoder
 from yelp_review_dataset_processor import YelpReviewDatasetProcessor
@@ -64,7 +65,7 @@ def run_inference(gpu, test_data, model, vocab):
         tokens=row
         print(tokens)
         xs = nlp_utils.transform_to_array([tokens], vocab, with_label=False)
-        xs = nlp_utils.convert_seq(xs, device=gpu, with_label=False)
+        xs = gpu_utils.convert_seq(xs, device=gpu, with_label=False)
         with chainer.using_config('train', False), chainer.no_backprop_mode():
             prob = model.predict(xs, softmax=True)[0]
         answer = int(model.xp.argmax(prob))
@@ -78,7 +79,7 @@ def run_batch(gpu, model, vocab, setup_json, batchsize=64):
 
     def predict_batch(words_batch):
         xs = nlp_utils.transform_to_array(words_batch, vocab, with_label=False)
-        xs = nlp_utils.convert_seq(xs, device=gpu, with_label=False)
+        xs = gpu_utils.convert_seq(xs, device=gpu, with_label=False)
         with chainer.using_config('train', False), chainer.no_backprop_mode():
             probs = model.predict(xs, softmax=True)
         answers = model.xp.argmax(probs, axis=1)

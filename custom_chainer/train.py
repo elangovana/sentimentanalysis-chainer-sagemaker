@@ -11,7 +11,7 @@ import TextClassifier
 from encoders.BOWNLPEncoder import BOWMLPEncoder
 from encoders.CNNEncoder import CNNEncoder
 from encoders.RNNEncoder import RNNEncoder
-from nlp_utils import convert_seq
+from gpu_utils import convert_seq
 from yelp_review_dataset_processor import YelpReviewDatasetProcessor
 
 
