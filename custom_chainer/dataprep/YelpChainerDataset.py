@@ -2,12 +2,12 @@ import csv
 import io
 
 import chainer
-
+import  logging
 
 class YelpChainerDataset(chainer.dataset.iterator.Iterator):
 
     def __init__(self, file, has_header=False, delimiter=",", quote_charcter='"', encoding='utf-8'):
-
+        self._logger = logging.getLogger(__name__)
         self.quote_charcter = quote_charcter
         self.delimiter = delimiter
         self.encoding = encoding
@@ -26,6 +26,7 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
             # Loop through until we find the record
             i = 0
             line = ""
+            self._logger.debug("Reading line {} from file {}".format(idx, self.filepath))
             while i <= idx:
                 line = next(csv_reader)
                 i = i + 1
