@@ -25,8 +25,7 @@ Splits a file into 2  sets such as training & test.
         dataset = dataprep.YelpChainerDataset.YelpChainerDataset(file_or_dir, delimiter=",", encoding="utf-8",
                                                                  quote_charcter='"')
     else:
-        dataset = chainer.datasets.ConcatenatedDataset(get_dataset_array(file_or_dir))
-
+        dataset = chainer.datasets.ConcatenatedDataset(*get_dataset_array(file_or_dir))
     first_size = int(len(dataset) * first_size_fraction)
     first, second = chainer.datasets.split_dataset_random(dataset, first_size, seed=seed)
     return first, second
@@ -36,8 +35,9 @@ def get_dataset_array(base_dir):
     # Can make this dynamic, but in this sample 2 parts of the file
     datasets = []
     for f in os.listdir(base_dir):
+        full_path = os.path.join(base_dir, f)
         datasets.append(
-            dataprep.YelpChainerDataset.YelpChainerDataset(f, delimiter=",", encoding="utf-8", quote_charcter='"'))
+            dataprep.YelpChainerDataset.YelpChainerDataset(full_path, delimiter=",", encoding="utf-8", quote_charcter='"'))
 
     return datasets
 
