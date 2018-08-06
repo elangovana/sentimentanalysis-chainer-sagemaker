@@ -1,8 +1,8 @@
 import chainer
 from chainer import links as L
 
-from encoders.encoder_helpers import sequence_embed
-from encoders.encoder_constants import embed_init
+from encoders.EncoderHelpers import sequence_embed
+from encoders.EncoderConstants import embed_init
 
 
 class RNNEncoder(chainer.Chain):
