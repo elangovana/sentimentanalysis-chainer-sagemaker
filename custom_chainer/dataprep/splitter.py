@@ -7,7 +7,7 @@ import os
 import dataprep.YelpChainerDataset
 
 
-def split(file, first_size_fraction=.7, seed=1572) -> tuple((chainer.datasets.sub_dataset, chainer.datasets.sub_dataset)):
+def split(file, first_size_fraction=.8, seed=1572) -> tuple((chainer.datasets.sub_dataset, chainer.datasets.sub_dataset)):
     """
 Splits a file into 2  sets such as training & test.
     :param file: The file to split
@@ -37,7 +37,12 @@ if __name__=="__main__":
     parser.add_argument("outdir",
                         help="The output directory")
 
+    parser.add_argument("--first-file-name",
+                        help="The output directory", default= "train.shuffled.csv")
+    parser.add_argument("--second-file-name",
+                        help="The output directory", default= "test.shuffled.csv")
     args = parser.parse_args()
+    print(args.__dict__)
     first, second = split(args.inputfile)
-    write_csv(os.path.join(args.outdir, "train.csv"), first)
-    write_csv(os.path.join(args.outdir, "test.csv"), second)
+    write_csv(os.path.join(args.outdir, "train.shuffled.csv"), first)
+    write_csv(os.path.join(args.outdir, "test.shuffled.csv"), second)
