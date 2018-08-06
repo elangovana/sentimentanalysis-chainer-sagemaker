@@ -30,7 +30,7 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
             while i <= idx:
                 line = next(csv_reader)
                 i = i + 1
-
+            self._logger.debug("Read complete line {} from file {}".format(idx, self.filepath))
             return line
 
     def __len__(self):
