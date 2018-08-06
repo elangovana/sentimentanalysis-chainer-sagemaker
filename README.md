@@ -1,4 +1,4 @@
-# sentimentanalysis-chainer-sagemaker
+# Sentimentanalysis using chainer and Sagemaker
 Sentiment analysis using chainer and sagemaker
 
 ## Data prep
