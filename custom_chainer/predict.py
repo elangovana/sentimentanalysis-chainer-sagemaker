@@ -14,7 +14,6 @@ import TextClassifier
 import encoders.BOWNLPEncoder
 import encoders.CNNEncoder
 import gpu_utils
-import nlp_utils
 from encoders import RNNEncoder
 from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
