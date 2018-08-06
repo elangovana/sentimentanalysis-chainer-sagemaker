@@ -2,7 +2,10 @@
 Sentiment analysis using chainer and sagemaker
 
 ## Data prep
-This is to split the data file inot train and test set
+This is to split the data file into train and test set.
+
+**Note:** This may be a slow based on the size of the input file.
+
 ```bash
 export PYTHONPATH=./custom_chainer
 export inputyelpreviewfile=~/data/yelp_review.csv ## Specfy the path to the yelp review file
