@@ -37,7 +37,8 @@ def get_dataset_array(base_dir):
     for f in os.listdir(base_dir):
         full_path = os.path.join(base_dir, f)
         datasets.append(
-            dataprep.YelpChainerDataset.YelpChainerDataset(full_path, delimiter=",", encoding="utf-8", quote_charcter='"'))
+            dataprep.YelpChainerDataset.YelpChainerDataset(full_path, delimiter=",", encoding="utf-8",
+                                                           quote_charcter='"'))
 
     return datasets
 
@@ -58,7 +59,7 @@ def split(filepath, outputdir, has_header=True, no_of_parts=None, delimiter=",",
     with open(filepath, encoding=encoding) as handle:
         csv_reader = csv.reader(handle, delimiter=delimiter, quotechar=quote_character)
         # Skip first line if header
-        header = ""
+        header = None
         if has_header:
             header = next(csv_reader)
 
@@ -67,25 +68,30 @@ def split(filepath, outputdir, has_header=True, no_of_parts=None, delimiter=",",
         end_of_file = False
 
         while (not end_of_file):
-
             part_index = part_index + 1
             part_name = "{}_part_{:03d}.csv".format(os.path.basename(filepath), part_index)
             output_part = os.path.join(outputdir, part_name)
+            end_of_file = write_part_to_file(csv_reader, output_part, delimiter, quote_character, header, no_lines_per_part)
 
-            with open(output_part, "w") as handle:
-                csv_writer = csv.writer(handle, delimiter=delimiter, quotechar=quote_character)
-                if has_header:
-                    csv_writer.writerow(header)
+    logger.info("Completed dividing files sucessfully")
 
-                for i in range(0, no_lines_per_part):
-                    try:
-                        line = next(csv_reader)
-                        csv_writer.writerow(line)
-                    except StopIteration:
-                        end_of_file = True
-                        break
-                logger.info("Completed part {}".format(output_part))
-        logger.info("Completed dividing files sucessfully")
+
+def write_part_to_file(input_csv_reader, output_file_name, delimiter, quote_character, header, max_no_lines):
+    end_of_file = False
+    with open(output_file_name, "w") as handle:
+        csv_writer = csv.writer(handle, delimiter=delimiter, quotechar=quote_character)
+        if header is not None:
+            csv_writer.writerow(header)
+
+        for i in range(0, max_no_lines):
+            try:
+                line = next(input_csv_reader)
+                csv_writer.writerow(line)
+            except StopIteration:
+                end_of_file = True
+                break
+        logger.info("Completed part {}".format(output_file_name))
+    return end_of_file
 
 
 def write_csv(outputfile, dataset):
