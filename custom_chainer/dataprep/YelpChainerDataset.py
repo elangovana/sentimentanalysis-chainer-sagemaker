@@ -1,12 +1,16 @@
 import csv
 import io
+from io import StringIO
 
 import chainer
-import  logging
+import logging
+
 
 class YelpChainerDataset(chainer.dataset.iterator.Iterator):
 
-    def __init__(self, file, has_header=False, delimiter=",", quote_charcter='"', encoding='utf-8'):
+    def __init__(self, file, has_header=False, delimiter=",", quote_charcter='"', encoding='utf-8',
+                 use_in_memory_shuffle=True):
+        self.use_in_memory_shuffle = use_in_memory_shuffle
         self._logger = logging.getLogger(__name__)
         self.quote_charcter = quote_charcter
         self.delimiter = delimiter
@@ -14,24 +18,55 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
         self.has_header = has_header
         self.length = None
         self.filepath = file
+        self.line_dict = None
 
     def __getitem__(self, idx):
-        # TODO: Try and use linecache to optimise performance. The problem is that this is a multiline file
+        # If use_in_memory, load file contents to memory..
+        if self.use_in_memory_shuffle:
+            line = self.get_line_from_memory(idx)
+        # If optmise memory , but slow based on disk..
+        else:
+            # TODO: Try and use linecache to optimise performance. The problem is that this is a multiline file
+            line = self.get_line_from_disk(idx)
+
+        return line
+
+    def get_line_from_disk(self, idx):
         with io.open(self.filepath, encoding=self.encoding) as handle:
-            csv_reader = csv.reader(handle, delimiter=self.delimiter, quotechar=self.quote_charcter)
+            line = self.getline(handle, idx)
+        return line
 
-            # Skip first line if header
-            if self.has_header: next(csv_reader)
+    def get_line_from_memory(self, idx):
 
-            # Loop through until we find the record
-            i = 0
-            line = ""
-            self._logger.debug("Reading line {} from file {}".format(idx, self.filepath))
-            while i <= idx:
-                line = next(csv_reader)
-                i = i + 1
-            self._logger.debug("Read complete line {} from file {}".format(idx, self.filepath))
-            return line
+        if self.line_dict is None:
+            # Load the contents into memory and store as hash
+            with io.open(self.filepath, encoding=self.encoding) as handle:
+                reader = self.get_reader(handle)
+                # Ignore header
+                if self.has_header: next(reader)
+
+                i = 0
+                self.line_dict = {}
+                for l in reader:
+                    self.line_dict[i] = l
+                    i = i + 1
+
+        line = self.line_dict[idx]
+        return line
+
+    def getline(self, handle, idx):
+        csv_reader = self.get_reader(handle)
+        # Skip first line if header
+        if self.has_header: next(csv_reader)
+        # Loop through until we find the record
+        i = 0
+        line = ""
+        self._logger.debug("Reading line {} from file {}".format(idx, self.filepath))
+        while i <= idx:
+            line = next(csv_reader)
+            i = i + 1
+        self._logger.debug("Read complete line {} from file {}".format(idx, self.filepath))
+        return line
 
     def __len__(self):
         if self.length is None:
@@ -42,7 +77,7 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
         total_records = 0
         # Get file length
         with io.open(self.filepath, encoding=self.encoding) as handle:
-            csv_reader = csv.reader(handle, delimiter=',', quotechar='"')
+            csv_reader = self.get_reader(handle)
             # Skip first line if header
             if self.has_header: next(csv_reader)
 
@@ -50,3 +85,6 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
             for l in csv_reader:
                 total_records = total_records + 1
         return total_records
+
+    def get_reader(self, handle):
+        return csv.reader(handle, delimiter=self.delimiter, quotechar=self.quote_charcter)
