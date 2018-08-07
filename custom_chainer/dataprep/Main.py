@@ -28,7 +28,7 @@ if __name__ == "__main__":
                         help="The output directory")
 
     parser.add_argument("--use-in-memory",
-                        help="This will load entire file into memory for ultrfast performance . But you may run into out-of moery error if you dont have sufficient memory..", default="N",  choices={'Y', 'N'})
+                        help="This will load entire file into memory for ultrfast performance, applies only when --divide N. But you may run into out-of memory error if you dont have sufficient memory..", default="N",  choices={'Y', 'N'})
 
     parser.add_argument("--first-file-name",
                         help="The output directory", default="train.shuffled.csv")
