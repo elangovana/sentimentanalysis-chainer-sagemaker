@@ -63,9 +63,10 @@ class Splitter:
                     self._logger.info("Written  {} lines so far".format(total))
                 csv_writer.writerow(l)
 
-                #break only if max line is greater than 0
-                if total >= max_lines and max_lines > 0:
-                    break
+            #Do this at the end of the batch so the iterator loop continues
+            # break only if max line is greater than 0
+            if total >= max_lines and max_lines > 0:
+                break
 
     def _get_dataset_array(self, base_dir, use_in_memory_shuffle):
         # Can make this dynamic, but in this sample 2 parts of the file
