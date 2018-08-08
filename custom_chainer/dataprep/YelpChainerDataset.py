@@ -20,8 +20,14 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
         self.length = None
         self.filepath = file
         self.line_dict = None
+        self._log_accessed = 0
 
     def __getitem__(self, idx):
+        #reporting progress...
+        self._log_accessed = self._log_accessed + 1
+        if self._log_accessed % 500 == 0:
+            self._logger.info("Accessed {} with {} lines {} times so far..".format( self.filepath, self.getcount(), self._log_accessed))
+
         # If use_in_memory, load file contents to memory..
         if self.use_in_memory_shuffle:
             line = self._get_line_from_memory(idx)
@@ -81,6 +87,7 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
         total_records = 0
         # Get file length
         with io.open(self.filepath, encoding=self.encoding) as handle:
+            self._logger.debug("Getting count for file {}".format(self.filepath))
             csv_reader = self._get_reader(handle)
             # Skip first line if header
             if self.has_header: next(csv_reader)
@@ -92,4 +99,3 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
 
     def _get_reader(self, handle):
         return csv.reader(handle, delimiter=self.delimiter, quotechar=self.quote_charcter)
-
