@@ -42,7 +42,7 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
         if self.line_dict is None:
             # Load the contents into memory and store as hash
             with io.open(self.filepath, encoding=self.encoding) as handle:
-                reader = self.get_reader(handle)
+                reader = self._get_reader(handle)
                 # Ignore header
                 if self.has_header:
                     self._header = next(reader)
@@ -57,7 +57,7 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
         return line
 
     def _getline(self, handle, idx):
-        csv_reader = self.get_reader(handle)
+        csv_reader = self._get_reader(handle)
         # Skip first line if header
         if self.has_header:
             self._header = next(csv_reader)
@@ -81,7 +81,7 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
         total_records = 0
         # Get file length
         with io.open(self.filepath, encoding=self.encoding) as handle:
-            csv_reader = self.get_reader(handle)
+            csv_reader = self._get_reader(handle)
             # Skip first line if header
             if self.has_header: next(csv_reader)
 
@@ -90,13 +90,6 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
                 total_records = total_records + 1
         return total_records
 
-    def get_reader(self, handle):
+    def _get_reader(self, handle):
         return csv.reader(handle, delimiter=self.delimiter, quotechar=self.quote_charcter)
 
-    def write_csv(self, outputfile):
-        with open(outputfile, "w") as handle:
-            csv_writer = csv.writer(handle, delimiter=',', quotechar='"')
-            if self._header is not None:
-                csv_writer.writerow(self._header)
-            for l in self:
-                csv_writer.writerow(l)
