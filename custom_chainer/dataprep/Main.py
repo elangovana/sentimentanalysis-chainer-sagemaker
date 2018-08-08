@@ -31,6 +31,10 @@ if __name__ == "__main__":
                         help="Whether to shuffle or split the file. If you choose split, then --first-file-name and --second-file-name  & --use-in-memory are ignored ",
                          choices={shuffle, split})
 
+    parser.add_argument("--num-cpu",
+                        help="This option applies only for shuffle op. Will multiprocess",
+                        default=1,type=int)
+
     parser.add_argument("--use-in-memory",
                         help="This will load entire file into memory for ultrfast performance, applies only when --divide N. But you may run into out-of memory error if you dont have sufficient memory..", default="Y",  choices={'Y', 'N'})
 
@@ -53,8 +57,9 @@ if __name__ == "__main__":
         splitter = splitter.split(args.outdir)
     else:
         #Shuffle
-        first, second = splitter.shuffleandsplit(use_in_memory_shuffle=use_in_mem_cache)
-        splitter.write_csv(os.path.join(args.outdir, "train.shuffled.csv"), first)
-        splitter.write_csv(os.path.join(args.outdir, "test.shuffled.csv"), second)
+        with open(os.path.join(args.outdir, "train.shuffled.csv"), "w") as first:
+            with open(os.path.join(args.outdir, "test.shuffled.csv"), "w") as second:
+                splitter.shuffleandsplit(first,second, use_in_memory_shuffle=use_in_mem_cache, n_processes=args.num_cpu)
+
 
     logger.info("Completed ... ")

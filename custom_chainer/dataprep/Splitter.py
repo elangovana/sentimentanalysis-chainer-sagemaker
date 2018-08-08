@@ -3,6 +3,7 @@ import logging
 import os
 
 import chainer
+from chainer import iterators
 
 import dataprep.YelpChainerDataset
 
@@ -16,14 +17,14 @@ class Splitter:
         self.file_or_dir = file_or_dir
         self._logger = logging.getLogger(__name__)
 
-    def shuffleandsplit(self, first_size_fraction=.8, seed=1572, use_in_memory_shuffle=False) -> tuple(
-        (chainer.datasets.sub_dataset, chainer.datasets.sub_dataset)):
+    def shuffleandsplit(self, output_handle1, output_handle2, first_size_fraction=.8, seed=1572, use_in_memory_shuffle=False, n_processes = 1) :
         """
     Shuffles and splits a file into 2  sets such as training & test.
+        :param n_processes: Set to equal to number of CPU for multiprocessosing
         :param file_or_dir: The file to split
         :param first_size_fraction: The fraction of data to be polaced in the first set. Say if this value is .7, then 70% os the data is placed in the first set
         :param seed: The random seed to fix
-        :return: 2 datasets
+
         """
 
         # Prepare dataset
@@ -39,8 +40,32 @@ class Splitter:
 
         # Split
         first_size = int(len(dataset) * first_size_fraction)
-        first, second = chainer.datasets.split_dataset_random(dataset, first_size, seed=seed)
-        return first, second
+        batch_size = 10
+        if n_processes is not None:
+            batch_size = n_processes * 10
+
+
+        iterator = iterators.MultiprocessIterator(dataset, batch_size, shuffle=True, repeat=False,
+                                                 n_processes=n_processes)
+        ## Write first file
+        self.writelines(iterator, output_handle1, first_size)
+        ## Write second file
+        self.writelines(iterator, output_handle2)
+
+
+    def writelines(self, iterator, handle, max_lines=0):
+        total = 0
+        csv_writer = csv.writer(handle, delimiter=self.delimiter, quotechar=self.quote_character)
+        for batch in iterator:
+            for l in batch:
+                total = total + 1
+                if total % 10000 == 0:
+                    self._logger.info("Written  {} lines so far".format(total))
+                csv_writer.writerow(l)
+
+                #break only if max line is greater than 0
+                if total >= max_lines and max_lines > 0:
+                    break
 
     def _get_dataset_array(self, base_dir, use_in_memory_shuffle):
         # Can make this dynamic, but in this sample 2 parts of the file
