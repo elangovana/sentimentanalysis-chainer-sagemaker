@@ -68,11 +68,16 @@ class Splitter:
         # Get number of lines per part
         MB = 2 * (KB * KB)
         no_of_parts = no_of_parts or int(os.path.getsize(self.file_or_dir) / MB) + 1
-        no_lines_per_part = int(approx_total_lines / no_of_parts)
+        no_lines_per_part = int(approx_total_lines / no_of_parts) + 1
 
         self._logger.info("Dividing file {} into estimated {} parts".format(self.file_or_dir, no_of_parts))
 
         with open(self.file_or_dir, encoding=self.encoding) as handle:
+            dialect = csv.Sniffer().sniff(handle.read(1024))
+            # # TODO: For some reason sniff doesnt pickup quote all.., hence hardcoded ..
+            dialect.quoting = csv.QUOTE_ALL
+
+            handle.seek(0)
             csv_reader = csv.reader(handle, delimiter=self.delimiter, quotechar=self.quote_character)
             # Skip first line if header
             header = None
@@ -87,14 +92,15 @@ class Splitter:
                 part_index = part_index + 1
                 part_name = "{}_part_{:03d}.csv".format(os.path.basename(self.file_or_dir), part_index)
                 output_part = os.path.join(outputdir, part_name)
-                end_of_file = self._write_part_to_file(csv_reader, output_part, no_lines_per_part, header)
+                end_of_file = self._write_part_to_file(csv_reader, output_part, no_lines_per_part, header, dialect)
 
         self._logger.info("Completed dividing files sucessfully")
 
-    def _write_part_to_file(self, input_csv_reader, output_file_name, max_no_lines, header):
+    def _write_part_to_file(self, input_csv_reader, output_file_name, max_no_lines, header, dialect):
         end_of_file = False
-        with open(output_file_name, "w") as handle:
-            csv_writer = csv.writer(handle, delimiter=self.delimiter, quotechar=self.quote_character)
+        has_lines = False
+        with open(output_file_name, "w", encoding=self.encoding) as handle:
+            csv_writer = csv.writer(handle, dialect=dialect, delimiter=self.delimiter, quotechar=self.quote_character)
             if header is not None:
                 csv_writer.writerow(header)
 
@@ -102,14 +108,18 @@ class Splitter:
                 try:
                     line = next(input_csv_reader)
                     csv_writer.writerow(line)
+                    has_lines = True
                 except StopIteration:
                     end_of_file = True
                     break
-            self._logger.info("Completed part {}".format(output_file_name))
+            if not has_lines:
+                os.remove(output_file_name)
+            else:
+                self._logger.info("Completed part {}".format(output_file_name))
         return end_of_file
 
     def write_csv(self, outputfile, dataset):
-        with open(outputfile, "w") as handle:
+        with open(outputfile, "w", encoding=self.encoding) as handle:
             csv_writer = csv.writer(handle, delimiter=self.delimiter, quotechar=self.quote_character)
             for l in dataset:
                 csv_writer.writerow(l)
