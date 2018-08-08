@@ -121,5 +121,9 @@ class Splitter:
     def write_csv(self, outputfile, dataset):
         with open(outputfile, "w", encoding=self.encoding) as handle:
             csv_writer = csv.writer(handle, delimiter=self.delimiter, quotechar=self.quote_character)
+            total = 0
             for l in dataset:
+                total = total+1
+                if total % 10000 ==0:
+                    self._logger.info("Written  {} lines so far to file {}".format(total, outputfile))
                 csv_writer.writerow(l)
