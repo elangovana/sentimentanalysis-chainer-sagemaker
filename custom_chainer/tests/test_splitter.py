@@ -9,7 +9,7 @@ from dataprep.Splitter import Splitter
 @ddt
 class TestSplitter(TestCase):
 
-    @data(("data/parts/yelp_review_short.csv", 3, "data/parts"))
+    @data(("data/splitdata/yelp_review_short.csv", 3, "data/parts"))
     @unpack
     def test_split(self, inputfile, no_of_parts, expected_parts_dir):
         # Arrange
