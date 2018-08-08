@@ -16,10 +16,10 @@ class Splitter:
         self.file_or_dir = file_or_dir
         self._logger = logging.getLogger(__name__)
 
-    def split_traintest(self, first_size_fraction=.8, seed=1572, use_in_memory_shuffle=False) -> tuple(
+    def shuffleandsplit(self, first_size_fraction=.8, seed=1572, use_in_memory_shuffle=False) -> tuple(
         (chainer.datasets.sub_dataset, chainer.datasets.sub_dataset)):
         """
-    Splits a file into 2  sets such as training & test.
+    Shuffles and splits a file into 2  sets such as training & test.
         :param file_or_dir: The file to split
         :param first_size_fraction: The fraction of data to be polaced in the first set. Say if this value is .7, then 70% os the data is placed in the first set
         :param seed: The random seed to fix
@@ -49,6 +49,7 @@ class Splitter:
             full_path = os.path.join(base_dir, f)
             datasets.append(
                 dataprep.YelpChainerDataset.YelpChainerDataset(full_path, delimiter=self.delimiter,
+                                                               has_header=self.has_header,
                                                                encoding=self.encoding,
                                                                quote_charcter=self.quote_character,
                                                                use_in_memory_shuffle=use_in_memory_shuffle))
@@ -106,3 +107,9 @@ class Splitter:
                     break
             self._logger.info("Completed part {}".format(output_file_name))
         return end_of_file
+
+    def write_csv(self, outputfile, dataset):
+        with open(outputfile, "w") as handle:
+            csv_writer = csv.writer(handle, delimiter=self.delimiter, quotechar=self.quote_character)
+            for l in dataset:
+                csv_writer.writerow(l)
