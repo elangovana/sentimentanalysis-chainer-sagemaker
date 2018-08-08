@@ -26,7 +26,7 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
         #reporting progress...
         self._log_accessed = self._log_accessed + 1
         if self._log_accessed % 500 == 0:
-            self._logger.info("Accessed {} with {} lines {} times so far..".format( self.filepath, self.getcount(), self._log_accessed))
+            self._logger.debug("Accessed {} with {} lines {} times so far..".format( self.filepath, self.getcount(), self._log_accessed))
 
         # If use_in_memory, load file contents to memory..
         if self.use_in_memory_shuffle:
