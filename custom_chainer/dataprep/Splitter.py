@@ -66,6 +66,7 @@ class Splitter:
             # Do this at the end of the batch so the iterator loop continues without losing contents in batch
             # break only if max line is greater than 0
             if total >= max_lines and max_lines > 0:
+                self._logger.info("Totals  {} lines".format(total))
                 break
 
     def _get_dataset_array(self, base_dir, use_in_memory_shuffle):
