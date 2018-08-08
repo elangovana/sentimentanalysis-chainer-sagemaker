@@ -17,7 +17,8 @@ class Splitter:
         self.file_or_dir = file_or_dir
         self._logger = logging.getLogger(__name__)
 
-    def shuffleandsplit(self, output_handle1, output_handle2, first_size_fraction=.8, seed=1572, use_in_memory_shuffle=False, n_processes = 1) :
+    def shuffleandsplit(self, output_handle1, output_handle2, first_size_fraction=.8, seed=1572,
+                        use_in_memory_shuffle=False, n_processes=1):
         """
     Shuffles and splits a file into 2  sets such as training & test.
         :param n_processes: Set to equal to number of CPU for multiprocessosing
@@ -44,14 +45,12 @@ class Splitter:
         if n_processes is not None:
             batch_size = n_processes * 10
 
-
         iterator = iterators.MultiprocessIterator(dataset, batch_size, shuffle=True, repeat=False,
-                                                 n_processes=n_processes)
+                                                  n_processes=n_processes)
         ## Write first file
         self.writelines(iterator, output_handle1, first_size)
         ## Write second file
         self.writelines(iterator, output_handle2)
-
 
     def writelines(self, iterator, handle, max_lines=0):
         total = 0
@@ -63,7 +62,7 @@ class Splitter:
                     self._logger.info("Written  {} lines so far".format(total))
                 csv_writer.writerow(l)
 
-            #Do this at the end of the batch so the iterator loop continues
+            # Do this at the end of the batch so the iterator loop continues without losing contents in batch
             # break only if max line is greater than 0
             if total >= max_lines and max_lines > 0:
                 break
@@ -102,7 +101,6 @@ class Splitter:
             dialect = csv.unix_dialect()
             # # TODO: For some reason sniff doesnt pickup quote all.., hence hardcoded ..
             dialect.quoting = csv.QUOTE_ALL
-
 
             csv_reader = csv.reader(handle, delimiter=self.delimiter, quotechar=self.quote_character)
             # Skip first line if header
@@ -149,7 +147,7 @@ class Splitter:
             csv_writer = csv.writer(handle, delimiter=self.delimiter, quotechar=self.quote_character)
             total = 0
             for l in dataset:
-                total = total+1
-                if total % 10000 ==0:
+                total = total + 1
+                if total % 10000 == 0:
                     self._logger.info("Written  {} lines so far to file {}".format(total, outputfile))
                 csv_writer.writerow(l)
