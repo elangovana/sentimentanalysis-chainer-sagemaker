@@ -73,11 +73,11 @@ class Splitter:
         self._logger.info("Dividing file {} into estimated {} parts".format(self.file_or_dir, no_of_parts))
 
         with open(self.file_or_dir, encoding=self.encoding) as handle:
-            dialect = csv.Sniffer().sniff(handle.read(1024))
+            dialect = csv.unix_dialect()
             # # TODO: For some reason sniff doesnt pickup quote all.., hence hardcoded ..
             dialect.quoting = csv.QUOTE_ALL
 
-            handle.seek(0)
+
             csv_reader = csv.reader(handle, delimiter=self.delimiter, quotechar=self.quote_character)
             # Skip first line if header
             header = None
