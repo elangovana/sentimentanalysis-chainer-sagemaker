@@ -41,6 +41,7 @@ class Splitter:
 
         # Split
         first_size = int(len(dataset) * first_size_fraction)
+        self._logger.info("Total records:{}, part1 size is {}".format(len(dataset), first_size))
         batch_size = 100
         if n_processes is not None:
             batch_size = n_processes * 10
