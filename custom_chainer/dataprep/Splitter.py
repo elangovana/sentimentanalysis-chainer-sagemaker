@@ -30,7 +30,7 @@ class Splitter:
         if os.path.isfile(self.file_or_dir):
             dataset = dataprep.YelpChainerDataset.YelpChainerDataset(self.file_or_dir, delimiter=self.delimiter,
                                                                      encoding=self.encoding,
-                                                                     quote_charcter=self.quote_character,
+                                                                     quote_character=self.quote_character,
                                                                      has_header=self.has_header,
                                                                      use_in_memory_shuffle=use_in_memory_shuffle)
         else:
@@ -51,7 +51,7 @@ class Splitter:
                 dataprep.YelpChainerDataset.YelpChainerDataset(full_path, delimiter=self.delimiter,
                                                                has_header=self.has_header,
                                                                encoding=self.encoding,
-                                                               quote_charcter=self.quote_character,
+                                                               quote_character=self.quote_character,
                                                                use_in_memory_shuffle=use_in_memory_shuffle))
 
         return datasets

@@ -8,11 +8,11 @@ import logging
 
 class YelpChainerDataset(chainer.dataset.iterator.Iterator):
 
-    def __init__(self, file, has_header=False, delimiter=",", quote_charcter='"', encoding='utf-8',
+    def __init__(self, file, has_header=False, delimiter=",", quote_character='"', encoding='utf-8',
                  use_in_memory_shuffle=True):
         self.use_in_memory_shuffle = use_in_memory_shuffle
         self._logger = logging.getLogger(__name__)
-        self.quote_charcter = quote_charcter
+        self.quote_charcter = quote_character
         self.delimiter = delimiter
         self.encoding = encoding
         self.has_header = has_header
