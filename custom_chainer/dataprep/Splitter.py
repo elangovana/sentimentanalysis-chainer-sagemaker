@@ -40,7 +40,7 @@ class Splitter:
 
         # Split
         first_size = int(len(dataset) * first_size_fraction)
-        batch_size = 10
+        batch_size = 100
         if n_processes is not None:
             batch_size = n_processes * 10
 
