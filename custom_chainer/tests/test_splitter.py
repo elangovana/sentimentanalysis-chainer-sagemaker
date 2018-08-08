@@ -9,21 +9,21 @@ from dataprep.Splitter import Splitter
 @ddt
 class TestSplitter(TestCase):
 
-    @data(("data/splitdata/yelp_review_short.csv", 3, "data/parts"))
+    @data(("data/splitdata/yelp_review_short.csv", 3, "data/splitdata"))
     @unpack
     def test_split(self, inputfile, no_of_parts, expected_parts_dir):
         # Arrange
         full_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), inputfile)
         expected_parts_full_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), expected_parts_dir)
 
-        temp_out_dir ="/Users/aeg/Documents/sentimentanalysis-chainer-sagemaker/custom_chainer/tests/data/parts/test"# tempfile.mkdtemp()
+        temp_out_dir = tempfile.mkdtemp()
 
         sut = Splitter(inputfile, temp_out_dir)
 
         # Act
         sut.split(temp_out_dir, no_of_parts=no_of_parts)
 
-        #Assert
+        # Assert
         for f in os.listdir(temp_out_dir):
             actual_f = os.path.join(temp_out_dir, f)
             expected_f = os.path.join(expected_parts_full_path, f)
@@ -34,5 +34,4 @@ class TestSplitter(TestCase):
             with open(expected_f, "r") as f:
                 expected = f.read()
 
-            self.assertTrue(actual == expected, "\n{}\n\n{}".format(actual,expected) )
-
+            self.assertTrue(actual == expected, "\n{}\n\n{}".format(actual, expected))
