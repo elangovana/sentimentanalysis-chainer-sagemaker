@@ -10,6 +10,7 @@ from train import run_train
 
 def train():
     logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
 
     parser = argparse.ArgumentParser(
         description='Chainer example: Text Classification')
