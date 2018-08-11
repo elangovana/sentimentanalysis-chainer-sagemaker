@@ -26,7 +26,7 @@ def train():
                         help='The directory containing test artifacts such as test data',
                         default=os.environ.get('SM_CHANNEL_TEST', "."))
     parser.add_argument('--batchsize', '-b', type=int, default=64,
-                        help='Number of images in each mini-batch')
+                        help='Number of records in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=30,
                         help='Number of sweeps over the dataset to train')
     parser.add_argument('--gpu', '-g', type=int, default=int(os.environ.get('SM_NUM_GPUS', 0)) - 1,

@@ -17,7 +17,7 @@ from gpu_utils import convert_seq
 from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
 
-def run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_layers, out,
+def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model, no_layers, out,
               unit):
     # Has to be the first line so that the args can be persisted
     current_args = locals()
@@ -56,12 +56,15 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_lay
     # Check if can distribute training
     use_distibuted_gpu = False
     use_gpu = False
-    if gpu >= 0:
+    main_device = -1
+
+    if max_gpu_id >= 0:
+        main_device = 0
         use_gpu = True
-        use_distibuted_gpu = gpu > 1
+        use_distibuted_gpu = max_gpu_id > 1
 
     if use_gpu and not use_distibuted_gpu:
-        chainer.backends.cuda.get_device_from_id(gpu).use()
+        chainer.backends.cuda.get_device_from_id(main_device).use()
         model.to_gpu()  # Copy the model to the GPU
 
     # Setup an optimizer
@@ -72,10 +75,11 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_lay
     # Set up a trainer
     if use_distibuted_gpu:
         device_dict = {}
-        for g in range(1, gpu + 1):
-            device_dict[str(g)] = g
-        device_dict['main'] = 0
-
+        for device_id in range(0, max_gpu_id + 1):
+            if device_id == main_device:
+                device_dict['main'] = device_id
+            else:
+                device_dict[str(device_id)] = device_id
 
         # ParallelUpdater implements the data-parallel gradient computation on
         # multiple GPUs. It accepts "devices" argument that specifies which GPU to
@@ -92,13 +96,13 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_lay
     else:
         updater = training.updaters.StandardUpdater(
             train_iter, optimizer,
-            converter=convert_seq, device=gpu)
+            converter=convert_seq, device=main_device)
 
     trainer = training.Trainer(updater, (epoch, 'epoch'), out=out)
     # Evaluate the model with the test dataset for each epoch
     trainer.extend(extensions.Evaluator(
         test_iter, model,
-        converter=convert_seq, device=gpu))
+        converter=convert_seq, device=main_device))
     # Take a best snapshot
     record_trigger = training.triggers.MaxValueTrigger(
         'validation/main/accuracy', (1, 'epoch'))
