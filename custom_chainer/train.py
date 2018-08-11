@@ -34,7 +34,7 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_lay
     n_classes = [int(d[1]) for d in train]
     unique_classes, counts_classes = np.unique(n_classes, return_counts=True)
     logger.info(
-        "Frequency of unique values of the said array: \n{}".format(np.asarray((unique_classes, counts_classes))))
+        "Class distribution: \n{}".format(np.asarray((unique_classes, counts_classes))))
 
     n_class = len(unique_classes)
 
