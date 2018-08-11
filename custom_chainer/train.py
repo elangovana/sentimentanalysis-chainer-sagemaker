@@ -73,7 +73,8 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_lay
         device_dict = {}
         for g in range(1, gpu + 1):
             device_dict[str(g)] = g
-        device_dict["main"]: 0
+        device_dict['main']: 0
+        print(device_dict)
 
         # ParallelUpdater implements the data-parallel gradient computation on
         # multiple GPUs. It accepts "devices" argument that specifies which GPU to
@@ -112,7 +113,7 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_lay
         ['epoch', 'main/loss', 'validation/main/loss',
          'main/accuracy', 'validation/main/accuracy', 'elapsed_time']))
     # Print a progress bar to stdout
-    trainer.extend(extensions.ProgressBar())
+    #trainer.extend(extensions.ProgressBar())
     # Save vocabulary and model's setting
     if not os.path.isdir(out):
         os.mkdir(out)
