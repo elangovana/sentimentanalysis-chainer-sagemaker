@@ -100,5 +100,5 @@ def output_fn(prediction, response_content_type):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler(sys.stdout)])
+    logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler(sys.stdout)], format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     train()
