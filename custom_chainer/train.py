@@ -17,7 +17,7 @@ from gpu_utils import convert_seq
 from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
 
-def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_layers, out,
+def run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_layers, out,
               unit):
     # Has to be the first line so that the args can be persisted
     current_args = locals()
@@ -33,7 +33,8 @@ def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_la
     logger.info('# vocab: {}'.format(len(vocab)))
     n_classes = [int(d[1]) for d in train]
     unique_classes, counts_classes = np.unique(n_classes, return_counts=True)
-    logger.info("Frequency of unique values of the said array: \n{}".format(np.asarray((unique_classes, counts_classes))))
+    logger.info(
+        "Frequency of unique values of the said array: \n{}".format(np.asarray((unique_classes, counts_classes))))
 
     n_class = len(unique_classes)
 
@@ -50,18 +51,50 @@ def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_la
     encoder = Encoder(n_layers=no_layers, n_vocab=len(vocab),
                       n_units=unit, dropout=dropout)
     model = TextClassifier.TextClassifier(encoder, n_class)
+
+    # Check if can distribute training
+    use_distibuted_gpu = False
+    use_gpu = False
     if gpu >= 0:
-        # Make a specified GPU current
+        use_gpu = True
+        use_distibuted_gpu = gpu > 1
+
+    if use_gpu and not use_distibuted_gpu:
         chainer.backends.cuda.get_device_from_id(gpu).use()
         model.to_gpu()  # Copy the model to the GPU
+
     # Setup an optimizer
     optimizer = chainer.optimizers.Adam()
     optimizer.setup(model)
     optimizer.add_hook(chainer.optimizer.WeightDecay(1e-4))
+
     # Set up a trainer
-    updater = training.updaters.StandardUpdater(
-        train_iter, optimizer,
-        converter=convert_seq, device=gpu)
+    if use_distibuted_gpu:
+        device_dict = {}
+        for g in range(1, gpu + 1):
+            device_dict[str(g)] = g
+        device_dict["main"]: 0
+
+        # ParallelUpdater implements the data-parallel gradient computation on
+        # multiple GPUs. It accepts "devices" argument that specifies which GPU to
+        # use.
+        updater = training.updaters.ParallelUpdater(
+            train_iter,
+            optimizer,
+            # The device of the name 'main' is used as a "master", while others are
+            # used as slaves. Names other than 'main' are arbitrary.
+            devices=device_dict,
+        )
+
+    else:
+        updater = training.updaters.StandardUpdater(
+            train_iter, optimizer,
+            converter=convert_seq, device=gpu)
+
+
+
+
+
     trainer = training.Trainer(updater, (epoch, 'epoch'), out=out)
     # Evaluate the model with the test dataset for each epoch
     trainer.extend(extensions.Evaluator(
@@ -88,7 +121,7 @@ def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_la
 
     with open(vocab_path, 'w') as f:
         json.dump(vocab, f)
-    model_path = os.path.join( out,  'best_model.npz')
+    model_path = os.path.join(out, 'best_model.npz')
     model_setup = current_args
     model_setup['vocab_path'] = vocab_path
     model_setup['model_path'] = model_path
@@ -98,8 +131,3 @@ def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_la
         json.dump(model_setup, f)
     # Run the training
     trainer.run()
-
-
-
-
-
