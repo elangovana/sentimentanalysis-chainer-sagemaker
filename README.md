@@ -15,12 +15,12 @@ python ./custom_chainer/dataprep/splitter.py $inputyelpreviewfile $outputdatadir
 ## How to run
 ### 1. Train locally
 ```bash
-python custom_chainer/main_full_cycle.py  --traindata tests/data/sample_train.csv   -g -1  --epoch 100 --out result
+python custom_chainer/main_full_cycle.py  --traindata custom_chainer/tests/data/sample_train.csv   -g -1  --epoch 100 --out result
 ```
 
 ### 2. Test locally
 ```bash
-python custom_chainer/main_predict.py --gpu -1 --model-setup result/args.json --testset  tests/data/test.csv
+python custom_chainer/main_predict.py --gpu -1 --model-setup result/args.json --testset  custom_chainer/tests/data/test.csv
 ```
 
 ### 3. To use sagemaker
