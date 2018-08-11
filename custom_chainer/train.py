@@ -39,6 +39,7 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_lay
     n_class = len(unique_classes)
 
     # TODO: Make shuffle as option..Shuffling is set to false because assuming that the splitter is already run, which shuffles the data.
+
     train_iter = chainer.iterators.SerialIterator(train, batchsize, shuffle=False)
     test_iter = chainer.iterators.SerialIterator(test, batchsize,
                                                  repeat=False, shuffle=False)
@@ -82,6 +83,7 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_lay
         updater = training.updaters.ParallelUpdater(
             train_iter,
             optimizer,
+            converter=convert_seq,
             # The device of the name 'main' is used as a "master", while others are
             # used as slaves. Names other than 'main' are arbitrary.
             devices=device_dict,
