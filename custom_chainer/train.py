@@ -1,8 +1,10 @@
 import datetime
 import json
+import logging
 import os
 
 import chainer
+import numpy as np
 from chainer import training
 from chainer.training import extensions
 
@@ -17,18 +19,24 @@ from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
 def run_train(batchsize, char_based,  dataset, dropout, epoch, gpu, model, no_layers, out,
               unit):
-    # Load a dataset
+    # Has to be the first line so that the args can be persisted
     current_args = locals()
     current_datetime = '{}'.format(datetime.datetime.today())
+
+    logger = logging.getLogger(__name__)
 
     data_processor = YelpReviewDatasetProcessor()
     train, test, vocab = data_processor.get_dataset(
         dataset, char_based=char_based)
-    print('# train data: {}'.format(len(train)))
-    print('# test  data: {}'.format(len(test)))
-    print('# vocab: {}'.format(len(vocab)))
-    n_class = len(set([int(d[1]) for d in train]))
-    print('# class: {}'.format(n_class))
+    logger.info('# train data: {}'.format(len(train)))
+    logger.info('# test  data: {}'.format(len(test)))
+    logger.info('# vocab: {}'.format(len(vocab)))
+    n_classes = [int(d[1]) for d in train]
+    unique_classes, counts_classes = np.unique(n_classes, return_counts=True)
+    logger.info("Frequency of unique values of the said array: \n{}".format(np.asarray((unique_classes, counts_classes))))
+
+    n_class = len(unique_classes)
+
     # TODO: Make shuffle as option..Shuffling is set to false because assuming that the splitter is already run, which shuffles the data.
     train_iter = chainer.iterators.SerialIterator(train, batchsize, shuffle=False)
     test_iter = chainer.iterators.SerialIterator(test, batchsize,
