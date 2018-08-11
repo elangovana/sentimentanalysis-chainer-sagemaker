@@ -23,7 +23,7 @@ class YelpReviewDatasetProcessor:
         else:
             self._logger.info("No test data, hence randomly partitioning dataset into train and test")
             numpy.random.seed(seed)
-            alldata = numpy.random.permutation(train)
+            alldata = numpy.random.RandomState(seed=seed).permutation(train)
             train = alldata[:-len(alldata) // 10]
             test = alldata[-len(alldata) // 10:]
 
