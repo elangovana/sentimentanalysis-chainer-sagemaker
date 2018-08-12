@@ -18,10 +18,10 @@ class Splitter:
         self._logger = logging.getLogger(__name__)
 
     def shuffleandsplit(self, output_handle1, output_handle2, first_size_fraction=.8, seed=1572,
-                        use_in_memory_shuffle=False, n_processes=1):
+                        use_in_memory_shuffle=False, n_processes=None):
         """
     Shuffles and splits a file into 2  sets such as training & test.
-        :param n_processes: Set to equal to number of CPU for multiprocessosing
+        :param n_processes: By default sets  to equal to number of CPU for multiprocessosing
         :param file_or_dir: The file to split
         :param first_size_fraction: The fraction of data to be polaced in the first set. Say if this value is .7, then 70% os the data is placed in the first set
         :param seed: The random seed to fix

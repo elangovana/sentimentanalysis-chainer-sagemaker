@@ -32,8 +32,8 @@ if __name__ == "__main__":
                          choices={shuffle, split})
 
     parser.add_argument("--num-cpu",
-                        help="This option applies only for shuffle op. Will multiprocess",
-                        default=1,type=int)
+                        help="This option applies only for shuffle op. Will multiprocess by default equal to the number of CPUs",
+                        default=None,type=int)
 
     parser.add_argument("--use-in-memory",
                         help="This will load entire file into memory for ultrfast performance, applies only when --divide N. But you may run into out-of memory error if you dont have sufficient memory..", default="Y",  choices={'Y', 'N'})
