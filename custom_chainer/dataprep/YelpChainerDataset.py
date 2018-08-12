@@ -23,11 +23,16 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
         self._log_accessed = 0
 
     def __getitem__(self, idx):
-        #reporting progress...
-        self._log_accessed = self._log_accessed + 1
+        # reporting progress...
+        self._log_accessed += 1
         if self._log_accessed % 500 == 0:
-            self._logger.debug("Accessed {} with {} lines {} times so far..".format( self.filepath, self.getcount(), self._log_accessed))
-
+            self._logger.debug("Accessed {} with {} lines {} times so far..".format(self.filepath, self.getcount(),
+                                                                                    self._log_accessed))
+        self._logger.debug(
+            "Accessed index {} of file {} which has a total {} lines. Total access {} times so far..".format(idx,
+                                                                                                             self.filepath,
+                                                                                                             self.getcount(),
+                                                                                                             self._log_accessed))
         # If use_in_memory, load file contents to memory..
         if self.use_in_memory_shuffle:
             line = self._get_line_from_memory(idx)
