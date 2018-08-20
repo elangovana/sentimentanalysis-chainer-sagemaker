@@ -73,6 +73,7 @@ class YelpReviewDatasetProcessor:
             label = -1
         review_text = l[5]
         tokens = self.extract_tokens(char_based, review_text)
+        self._logger.debug("The length of tokens is {}".format(len(tokens)))
         return tokens, label
 
     def extract_tokens(self, char_based, review_text):
