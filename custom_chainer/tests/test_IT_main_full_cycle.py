@@ -24,7 +24,7 @@ class TestModel_fn(TestCase):
             full_testset_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), testdata)
             test_data_string =  Path(full_testset_path).read_text()
             # Run Train
-            run_train(batchsize=10, char_based=False, dataset=[full_dataset_path], dropout=.4, epoch=10, gpu=-1, model="cnn",
+            run_train(batchsize=10, char_based=False, dataset=[full_dataset_path], dropout=.4, epoch=10, max_gpu_id=-1, model="cnn",
                       no_layers=1, out=temp_out, unit=300)
 
             # Act + Assert

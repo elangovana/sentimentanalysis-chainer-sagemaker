@@ -25,41 +25,43 @@ class CNNEncoder(chainer.Chain):
     """
 
     def __init__(self, n_layers, n_vocab, n_units, dropout=0.1):
-        self._logger = logging.getLogger(__name__)
         out_units = n_units // 3
-        self._logger.info("The vocab size is {} and the nunits is {}".format(n_vocab, n_units))
+        self.logger.info("The vocab size is {} and the nunits is {}".format(n_vocab, n_units))
         super(CNNEncoder, self).__init__()
         with self.init_scope():
             self.embed = L.EmbedID(n_vocab, n_units, ignore_label=-1,
                                    initialW=embed_init)
             self.cnn_w3 = L.Convolution2D(
-                None, out_units, ksize=(2, n_units), stride=1, pad=(2, 3),
+                1, out_units, ksize=(2, n_units), stride=(1, 1), pad=(2 // 2, 0),
                 nobias=True)
             self.cnn_w4 = L.Convolution2D(
-                None, out_units, ksize=(3, n_units), stride=1, pad=(3, 3),
+                1, out_units, ksize=(3, n_units), stride=(1, 1), pad=(3 // 2, 0),
                 nobias=True)
 
             self.mlp = MLP(n_layers, 3 * 3, dropout)
 
-        self.out_units =9
+        self.out_units = 9
         self.dropout = dropout
 
+    @property
+    def logger(self):
+        return logging.getLogger(__name__)
+
     def __call__(self, xs):
-        self._logger.debug("The length of the batch is {}".format(len(xs)))
+        self.logger.debug("The length of the batch is {}".format(len(xs)))
 
         ## Concat the samples in the batch so they are are the same size, for shorter sentences, use -1 to indicate no word
         x_block = chainer.dataset.convert.concat_examples(xs, padding=-1)
-        self._logger.debug("The shape  of the concatenated batch is {}".format(x_block.shape))
-        self._logger.debug("The  block shape [0] of the concatenated set is {}".format(x_block[0].shape))
+        self.logger.debug("The shape  of the concatenated batch is {}".format(x_block.shape))
+        self.logger.debug("The  block shape [0] of the concatenated set is {}".format(x_block[0].shape))
 
         ex_block = block_embed(self.embed, x_block, self.dropout)
-        self._logger.debug("The embedded block shape of the concatenated set is {}".format(x_block.shape))
-        self._logger.debug("The first embedded data shape is {}".format(ex_block[0].shape))
-
+        self.logger.debug("The embedded block shape of the concatenated set is {}".format(x_block.shape))
+        self.logger.debug("The first embedded data shape is {}".format(ex_block[0].shape))
 
         h_w3 = F.max(self.cnn_w3(ex_block), axis=2)
-        self._logger.debug("The first h_w3[0] data shape is {}".format(h_w3[0].shape))
-        self._logger.debug("The first h_w3 data shape is {}".format(h_w3.shape))
+        self.logger.debug("The first h_w3[0] data shape is {}".format(h_w3[0].shape))
+        self.logger.debug("The first h_w3 data shape is {}".format(h_w3.shape))
 
         h_w4 = F.max(self.cnn_w4(ex_block), axis=2)
         h = F.concat([h_w3, h_w4], axis=1)
