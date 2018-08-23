@@ -32,10 +32,13 @@ class CNNEncoder(chainer.Chain):
             self.embed = L.EmbedID(n_vocab, n_units, ignore_label=-1,
                                    initialW=embed_init)
             self.cnn_w3 = L.Convolution2D(
-                1, out_units, ksize=(2, n_units), stride=(1, 1), pad=(2 // 2, 0),
+                1, out_units, ksize=(3, n_units), stride=(1, 1), pad=(2 // 2, 0),
                 nobias=True)
             self.cnn_w4 = L.Convolution2D(
-                1, out_units, ksize=(3, n_units), stride=(1, 1), pad=(3 // 2, 0),
+                1, out_units, ksize=(4, n_units), stride=(1, 1), pad=(3 // 2, 0),
+                nobias=True)
+            self.cnn_w5 = L.Convolution2D(
+                1, out_units, ksize=(5, n_units), stride=(1, 1), pad=(3 // 2, 0),
                 nobias=True)
 
             self.mlp = MLP(n_layers, 3 * 3, dropout)
