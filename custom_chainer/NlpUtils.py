@@ -3,6 +3,10 @@ import io
 
 import numpy
 
+UNKNOWN_WORD = '<unk>'
+
+EOS = '<eos>'
+
 
 def split_text(text, char_based=False):
     if char_based:
@@ -21,7 +25,7 @@ def make_vocab(dataset, max_vocab_size=20000, min_freq=2):
         for token in tokens:
             counts[token] += 1
 
-    vocab = {'<eos>': 0, '<unk>': 1}
+    vocab = {EOS: 0, UNKNOWN_WORD: 1}
     for w, c in sorted(counts.items(), key=lambda x: (-x[1], x[0])):
         if len(vocab) >= max_vocab_size or c < min_freq:
             break
@@ -29,21 +33,12 @@ def make_vocab(dataset, max_vocab_size=20000, min_freq=2):
     return vocab
 
 
-def read_vocab_list(path, max_vocab_size=20000):
-    vocab = {'<eos>': 0, '<unk>': 1}
-    with io.open(path, encoding='utf-8', errors='ignore') as f:
-        for l in f:
-            w = l.strip()
-            if w not in vocab and w:
-                vocab[w] = len(vocab)
-            if len(vocab) >= max_vocab_size:
-                break
-    return vocab
+
 
 
 def make_array(tokens, vocab, add_eos=True):
-    unk_id = vocab['<unk>']
-    eos_id = vocab['<eos>']
+    unk_id = vocab[UNKNOWN_WORD]
+    eos_id = vocab[EOS]
     ids = [vocab.get(token, unk_id) for token in tokens]
     if add_eos:
         ids.append(eos_id)
