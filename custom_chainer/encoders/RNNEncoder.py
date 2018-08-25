@@ -2,7 +2,8 @@ import chainer
 from chainer import links as L
 
 from encoders.EncoderHelpers import sequence_embed
-from encoders.EncoderConstants import embed_init
+
+from encoders.RandomEmbedder import RandomEmbedder
 
 
 class RNNEncoder(chainer.Chain):
@@ -19,11 +20,13 @@ class RNNEncoder(chainer.Chain):
 
     """
 
-    def __init__(self, n_layers, n_vocab, n_units, dropout=0.1):
+    def __init__(self, n_layers, n_vocab, n_units, dropout=0.1, embedder = None):
         super(RNNEncoder, self).__init__()
+
+        embedder = embedder or RandomEmbedder()
         with self.init_scope():
             self.embed = L.EmbedID(n_vocab, n_units,
-                                   initialW=embed_init)
+                                   initialW=embedder)
             self.encoder = L.NStepLSTM(n_layers, n_units, n_units, dropout)
 
         self.n_layers = n_layers

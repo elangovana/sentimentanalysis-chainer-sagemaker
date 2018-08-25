@@ -2,12 +2,11 @@ import chainer
 import numpy
 from chainer import links as L, functions as F
 
-from encoders.EncoderConstants import embed_init
 from encoders.EncoderHelpers import block_embed
+from encoders.RandomEmbedder import RandomEmbedder
 
 
 class BOWEncoder(chainer.Chain):
-
     """A BoW encoder with word embedding.
 
     This model encodes a sentence as just a set of words by averaging.
@@ -19,11 +18,12 @@ class BOWEncoder(chainer.Chain):
 
     """
 
-    def __init__(self, n_vocab, n_units, dropout=0.1):
+    def __init__(self, n_vocab, n_units, dropout=0.1, embedder=None):
         super(BOWEncoder, self).__init__()
+        embedder = embedder or RandomEmbedder()
         with self.init_scope():
             self.embed = L.EmbedID(n_vocab, n_units, ignore_label=-1,
-                                   initialW=embed_init)
+                                   initialW=embedder)
 
         self.out_units = n_units
         self.dropout = dropout

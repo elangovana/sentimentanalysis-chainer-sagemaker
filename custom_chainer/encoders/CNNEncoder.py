@@ -3,7 +3,7 @@ import logging
 import chainer
 from chainer import links as L, functions as F
 
-from encoders.EncoderConstants import embed_init
+from encoders.RandomEmbedder import RandomEmbedder
 from encoders.EncoderHelpers import block_embed
 from encoders.MLP import MLP
 
@@ -24,13 +24,15 @@ class CNNEncoder(chainer.Chain):
 
     """
 
-    def __init__(self, n_layers, n_vocab, n_units, dropout=0.1):
+    def __init__(self, n_layers, n_vocab, n_units, dropout=0.1, embedder=None):
+        super(CNNEncoder, self).__init__()
+
         out_units = n_units // 3
         self.logger.info("The vocab size is {} and the nunits is {}".format(n_vocab, n_units))
-        super(CNNEncoder, self).__init__()
+        embedder = embedder or RandomEmbedder()
         with self.init_scope():
             self.embed = L.EmbedID(n_vocab, n_units, ignore_label=-1,
-                                   initialW=embed_init)
+                                   initialW=embedder)
             self.cnn_w3 = L.Convolution2D(
                 1, out_units, ksize=(3, n_units), stride=(1, 1), pad=(2 // 2, 0),
                 nobias=True)
