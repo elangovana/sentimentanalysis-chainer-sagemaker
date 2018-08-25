@@ -5,8 +5,10 @@ from chainer.backends import cuda
 
 class GloveEmbedder:
 
-    def __init__(self, handle):
-        self.word_index, self.weights = self.load(handle)
+    def __init__(self, handle, other_words_embed_dict=None):
+
+
+        self.word_index, self.weights = self.load(handle, other_words_embed_dict)
         self.__weights__ = None
 
     def __call__(self, array):
@@ -14,7 +16,7 @@ class GloveEmbedder:
 
 
 
-    def load(self, handle):
+    def load(self, handle, other_words_embed_dict):
         """
 Expects the stream to string to contain embedding in space separated format with the first column containing the word itself.
 Each record is separated by new lines
@@ -25,14 +27,19 @@ sandberger 0.072617 -0.51393 0.4728 -0.52202 -0.35534 0.34629 0.23211 0.23096 0.
         """
         word_index_dict = {}
         embeddings_array = []
-        index = 0
+        other_words_embed_dict = other_words_embed_dict or {}
         xp = cuda.get_array_module()
         for line in handle:
             values = line.split()
             word = values[0]
             embeddings = xp.asarray(values[1:], dtype='float32')
-            word_index_dict[word] = index
+            word_index_dict[word] = len(word_index_dict)
             embeddings_array.append(embeddings)
+
+        for w in other_words_embed_dict.keys():
+            if word_index_dict.get(w, None) is None:
+                word_index_dict[w] = len(word_index_dict)
+                embeddings_array.append( xp.asarray(other_words_embed_dict[w], dtype='float32'))
 
         embeddings_array = xp.asarray(embeddings_array, dtype='float32')
         return word_index_dict, embeddings_array
