@@ -24,7 +24,7 @@ class CNNEncoder(chainer.Chain):
 
     """
 
-    def __init__(self, n_layers, n_vocab, n_units, dropout=0.1, embedder=None):
+    def __init__(self, n_layers, n_vocab, n_units, dropout=0.5, embedder=None):
         super(CNNEncoder, self).__init__()
 
         out_units = n_units // 3
@@ -69,7 +69,9 @@ class CNNEncoder(chainer.Chain):
         self.logger.debug("The first h_w3 data shape is {}".format(h_w3.shape))
 
         h_w4 = F.max(self.cnn_w4(ex_block), axis=2)
-        h = F.concat([h_w3, h_w4], axis=1)
+
+        h_w5 = F.max(self.cnn_w5(ex_block), axis=2)
+        h = F.concat([h_w3, h_w4, h_w5], axis=1)
         h = F.relu(h)
         h = F.dropout(h, ratio=self.dropout)
         h = self.mlp(h)
