@@ -16,14 +16,14 @@ class TestGloveEmbedder(TestCase):
         other_words_embed = None
         emdedding = np.random.randint(0, 100, size=(no_words, embed_len))
         get_mock_embed_handle = self.get_mock_embedding_handle(words_array, emdedding)
-        i = [1, 2]
+        actual = np.random.randint(0, 100, size=(no_words, embed_len))
 
-        ## Act
+        # Act
         sut = GloveEmbedder(get_mock_embed_handle, other_words_embed)
-        actual = sut(i)
+        sut(actual)
 
         # Assert
-        self.assertListEqual(actual.tolist(), emdedding[i].tolist())
+        self.assertListEqual(actual.tolist()[0:no_words], emdedding.tolist())
 
     def test_should_return_embeddings_unknown(self):
         ## Arrange
@@ -33,16 +33,18 @@ class TestGloveEmbedder(TestCase):
         other_words_embed = self.get_other_words_embed(embed_len, no_words)
         emdedding = np.random.randint(0, 100, size=(no_words, embed_len))
         get_mock_embed_handle = self.get_mock_embedding_handle(words_array, emdedding)
-        word, expected_embed = random.choice(list(other_words_embed.items()))
+        actual = np.random.randint(0, 100, size=(no_words * 2, embed_len))
 
-        ## Act
+        # Act
         sut = GloveEmbedder(get_mock_embed_handle, other_words_embed)
-        i = sut.word_index[word]
-        actual = sut([i])
+        sut(actual)
 
         # Assert
-
-        self.assertListEqual(actual[0].tolist(), expected_embed.tolist())
+        expected = [[0] for i in range(0, no_words)]
+        for w in other_words_embed.keys():
+            i = sut.word_index[w] - no_words
+            expected[i]=other_words_embed[w].tolist()
+        self.assertListEqual(actual.tolist()[no_words:2*no_words], expected)
 
     def get_other_words_embed(self, embed_len, no_words):
         # Other word embedding

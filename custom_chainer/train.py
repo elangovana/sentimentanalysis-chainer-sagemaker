@@ -9,25 +9,29 @@ from chainer import training
 from chainer.training import extensions
 
 import TextClassifier
+from NlpUtils import UNKNOWN_WORD, EOS
 
 from encoders.BOWNLPEncoder import BOWMLPEncoder
 from encoders.CNNEncoder import CNNEncoder
+from encoders.GloveEmbedder import GloveEmbedder
 from encoders.RNNEncoder import RNNEncoder
 from gpu_utils import convert_seq
 from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
 
 def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model, no_layers, out,
-              unit):
+              unit, embedding_file=None):
     # Has to be the first line so that the args can be persisted
     current_args = locals()
     current_datetime = '{}'.format(datetime.datetime.today())
 
     logger = logging.getLogger(__name__)
 
+    embbedder, vocab = get_embedder(embedding_file, unit)
+
     data_processor = YelpReviewDatasetProcessor()
     train, test, vocab = data_processor.get_dataset(
-        dataset, char_based=char_based)
+        dataset, char_based=char_based, vocab=vocab)
     logger.info('# train data: {}'.format(len(train)))
     logger.info('# test  data: {}'.format(len(test)))
     logger.info('# vocab: {}'.format(len(vocab)))
@@ -47,10 +51,11 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model,
     Encoder = CNNEncoder
     if model == 'rnn':
         Encoder = RNNEncoder
-    elif model == 'bow':
-        Encoder = BOWMLPEncoder
-    encoder = Encoder(n_layers=no_layers, n_vocab=len(vocab),
-                      n_units=unit, dropout=dropout)
+    # elif model == 'bow':
+    #     Encoder = BOWMLPEncoder
+    encoder = Encoder(n_layers=no_layers, n_vocab=len(vocab), n_units=unit, dropout=dropout, embedder=embbedder)
+
+
     model = TextClassifier.TextClassifier(encoder, n_class)
 
     # Check if can distribute training
@@ -134,3 +139,14 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model,
         json.dump(model_setup, f)
     # Run the training
     trainer.run()
+
+
+def get_embedder(embedding_file, unit):
+    embbedder = None
+    vocab = None
+    rand_embed = np.random.uniform(-0.5, .5, size=(2,unit))
+    if (embedding_file is not None):
+        with open(embedding_file) as f:
+            embbedder = GloveEmbedder(f, {UNKNOWN_WORD:rand_embed[0], EOS:rand_embed[1]})
+            vocab =embbedder.word_index
+    return embbedder, vocab
