@@ -3,10 +3,10 @@ import random
 from unittest import TestCase
 import numpy as np
 
-from encoders.GloveEmbedder import GloveEmbedder
+from encoders.PretrainedEmbedder import PretrainedEmbedder
 
 
-class TestGloveEmbedder(TestCase):
+class TestPretrainedEmbedder(TestCase):
 
     def test_should_return_embeddings(self):
         ## Arrange
@@ -19,7 +19,7 @@ class TestGloveEmbedder(TestCase):
         actual = np.random.randint(0, 100, size=(no_words, embed_len))
 
         # Act
-        sut = GloveEmbedder(get_mock_embed_handle, other_words_embed)
+        sut = PretrainedEmbedder(get_mock_embed_handle, other_words_embed)
         sut(actual)
 
         # Assert
@@ -36,7 +36,7 @@ class TestGloveEmbedder(TestCase):
         actual = np.random.randint(0, 100, size=(no_words * 2, embed_len))
 
         # Act
-        sut = GloveEmbedder(get_mock_embed_handle, other_words_embed)
+        sut = PretrainedEmbedder(get_mock_embed_handle, other_words_embed)
         sut(actual)
 
         # Assert

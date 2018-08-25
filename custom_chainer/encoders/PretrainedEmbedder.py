@@ -3,7 +3,7 @@ import numpy as np
 from chainer.backends import cuda
 
 
-class GloveEmbedder:
+class PretrainedEmbedder:
 
     def __init__(self, handle, other_words_embed_dict=None):
 

@@ -13,7 +13,7 @@ from NlpUtils import UNKNOWN_WORD, EOS
 
 from encoders.BOWNLPEncoder import BOWMLPEncoder
 from encoders.CNNEncoder import CNNEncoder
-from encoders.GloveEmbedder import GloveEmbedder
+from encoders.PretrainedEmbedder import PretrainedEmbedder
 from encoders.RNNEncoder import RNNEncoder
 from gpu_utils import convert_seq
 from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
@@ -147,6 +147,6 @@ def get_embedder(embedding_file, unit):
     rand_embed = np.random.uniform(-0.5, .5, size=(2,unit))
     if (embedding_file is not None):
         with open(embedding_file) as f:
-            embbedder = GloveEmbedder(f, {UNKNOWN_WORD:rand_embed[0], EOS:rand_embed[1]})
+            embbedder = PretrainedEmbedder(f, {UNKNOWN_WORD:rand_embed[0], EOS:rand_embed[1]})
             vocab =embbedder.word_index
     return embbedder, vocab
