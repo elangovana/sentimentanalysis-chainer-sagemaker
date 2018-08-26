@@ -1,3 +1,5 @@
+import logging
+
 import chainer
 import numpy as np
 from chainer.backends import cuda
@@ -11,6 +13,7 @@ class PretrainedEmbedder:
         self.__weights__ = None
 
     def __call__(self, array):
+        self.logger.info("Loading pretrainined embeddings...")
         xp = cuda.get_array_module(array)
         array[...] = xp.asarray(self.weights)
 
@@ -41,3 +44,8 @@ sandberger 0.072617 -0.51393 0.4728 -0.52202 -0.35534 0.34629 0.23211 0.23096 0.
 
         embeddings_array = xp.asarray(embeddings_array, dtype='float32')
         return word_index_dict, embeddings_array
+
+
+    @property
+    def logger(self):
+        return logging.getLogger(__name__)

@@ -44,7 +44,10 @@ def train():
                         choices=['cnn', 'rnn', 'bow'],
                         help='Name of encoder model type.')
     parser.add_argument('--char-based', action='store_true')
-
+    parser.add_argument('--pretrained-embed-dir', default=os.environ.get('SM_CHANNEL_PRETRAINEDEMBED', None),
+                        help='The path of the file containing the pretrained embeddings')
+    parser.add_argument('--pretrained-embed', default= None,
+                        help='The name of the file containing the pretrained embeddings within the --pretrained-embed-dir directory')
     args = parser.parse_args()
 
     logger.info("Invoking training with arguments \n ..{}".format(json.dumps(args.__dict__, indent=2)))
@@ -63,9 +66,12 @@ def train():
     gpu = args.gpu
     epoch = args.epoch
     out = args.out
+    pretrained_embeddings = None
+    if (args.pretrained_embed_dir is not None and args.pretrained_embed is not None):
+        pretrained_embeddings = os.path.join(args.pretrained_embed_dir , args.pretrained_embed)
 
     run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_layers, out,
-              unit)
+              unit, embedding_file=pretrained_embeddings)
 
 
 def model_fn(model_dir):
@@ -100,5 +106,6 @@ def output_fn(prediction, response_content_type):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler(sys.stdout)], format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler(sys.stdout)],
+                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     train()
