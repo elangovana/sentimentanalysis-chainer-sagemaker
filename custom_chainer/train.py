@@ -146,7 +146,7 @@ def get_embedder(embedding_file, unit):
     vocab = None
     rand_embed = np.random.uniform(-0.5, .5, size=(2,unit))
     if (embedding_file is not None):
-        with open(embedding_file) as f:
+        with open(embedding_file, encoding='utf-8') as f:
             embbedder = PretrainedEmbedder(f, {UNKNOWN_WORD:rand_embed[0], EOS:rand_embed[1]})
             vocab =embbedder.word_index
     return embbedder, vocab
