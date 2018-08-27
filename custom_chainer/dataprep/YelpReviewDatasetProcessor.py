@@ -4,7 +4,7 @@ import logging
 
 import numpy
 
-from NlpUtils import split_text, normalize_text, make_vocab, transform_to_array
+from utils.NlpUtils import split_text, normalize_text, make_vocab, transform_to_array
 
 
 class YelpReviewDatasetProcessor:

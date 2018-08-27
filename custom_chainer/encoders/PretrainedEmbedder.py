@@ -9,7 +9,7 @@ class PretrainedEmbedder:
 
     def __init__(self, handle, other_words_embed_dict=None):
 
-        self.word_index, self.weights = self.load(handle, other_words_embed_dict)
+        self.word_index, self.weights = PretrainedEmbedder.load(handle, other_words_embed_dict)
         self.__weights__ = None
 
     def __call__(self, array):
@@ -17,7 +17,8 @@ class PretrainedEmbedder:
         xp = cuda.get_array_module(array)
         array[...] = xp.asarray(self.weights)
 
-    def load(self, handle, other_words_embed_dict):
+    @staticmethod
+    def load(handle, other_words_embed_dict):
         """
 Expects the stream to string to contain embedding in space separated format with the first column containing the word itself.
 Each record is separated by new lines

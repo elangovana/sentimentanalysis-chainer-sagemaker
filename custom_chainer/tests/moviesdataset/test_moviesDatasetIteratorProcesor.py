@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy
 from ddt import ddt
 
-from NlpUtils import UNKNOWN_WORD, EOS
+from utils.NlpUtils import UNKNOWN_WORD, EOS
 from moviesdataset.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
 
 

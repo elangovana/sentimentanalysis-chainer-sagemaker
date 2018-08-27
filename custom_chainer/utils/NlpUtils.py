@@ -20,11 +20,7 @@ def normalize_text(text):
 
 
 def make_vocab(dataset, max_vocab_size=20000, min_freq=2, tokens_index = 0):
-    counts = collections.defaultdict(int)
-    for record in dataset:
-        tokens = record[tokens_index]
-        for token in tokens:
-            counts[token] += 1
+    counts = get_counts_by_token(dataset, tokens_index)
 
     vocab = {EOS: 0, UNKNOWN_WORD: 1}
     for w, c in sorted(counts.items(), key=lambda x: (-x[1], x[0])):
@@ -32,6 +28,15 @@ def make_vocab(dataset, max_vocab_size=20000, min_freq=2, tokens_index = 0):
             break
         vocab[w] = len(vocab)
     return vocab
+
+
+def get_counts_by_token(dataset, tokens_index):
+    counts = collections.defaultdict(int)
+    for record in dataset:
+        tokens = record[tokens_index]
+        for token in tokens:
+            counts[token] += 1
+    return counts
 
 
 def make_array(tokens, vocab, add_eos=True):

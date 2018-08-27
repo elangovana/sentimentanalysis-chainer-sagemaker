@@ -7,7 +7,7 @@ from io import StringIO
 import chainer
 import os
 
-import NlpUtils
+import utils.NlpUtils
 import encoders.RNNEncoder
 
 import TextClassifier
@@ -64,7 +64,7 @@ def run_inference(gpu, test_data, model, vocab):
     for row in test_data:
         tokens=row
         print(tokens)
-        xs = NlpUtils.transform_to_array([tokens], vocab, with_label=False)
+        xs = utils.NlpUtils.transform_to_array([tokens], vocab, with_label=False)
         xs = gpu_utils.convert_seq(xs, device=gpu, with_label=False)
         with chainer.using_config('train', False), chainer.no_backprop_mode():
             prob = model.predict(xs, softmax=True)[0]
@@ -78,7 +78,7 @@ def run_batch(gpu, model, vocab, setup_json, batchsize=64):
     # predict labels by batch
 
     def predict_batch(words_batch):
-        xs = NlpUtils.transform_to_array(words_batch, vocab, with_label=False)
+        xs = utils.NlpUtils.transform_to_array(words_batch, vocab, with_label=False)
         xs = gpu_utils.convert_seq(xs, device=gpu, with_label=False)
         with chainer.using_config('train', False), chainer.no_backprop_mode():
             probs = model.predict(xs, softmax=True)

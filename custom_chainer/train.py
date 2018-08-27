@@ -9,7 +9,7 @@ from chainer import training
 from chainer.training import extensions
 
 import TextClassifier
-from NlpUtils import UNKNOWN_WORD, EOS
+from utils.NlpUtils import UNKNOWN_WORD, EOS
 
 from encoders.BOWNLPEncoder import BOWMLPEncoder
 from encoders.CNNEncoder import CNNEncoder
