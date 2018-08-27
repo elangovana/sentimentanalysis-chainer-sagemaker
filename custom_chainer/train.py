@@ -55,7 +55,6 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model,
     #     Encoder = BOWMLPEncoder
     encoder = Encoder(n_layers=no_layers, n_vocab=len(vocab), n_units=unit, dropout=dropout, embedder=embbedder)
 
-
     model = TextClassifier.TextClassifier(encoder, n_class)
 
     # Check if can distribute training
@@ -144,9 +143,10 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model,
 def get_embedder(embedding_file, unit):
     embbedder = None
     vocab = None
-    rand_embed = np.random.uniform(-0.5, .5, size=(2,unit))
+    rand_embed = np.random.uniform(-0.5, .5, size=(2, unit))
     if (embedding_file is not None):
         with open(embedding_file, encoding='utf-8') as f:
-            embbedder = PretrainedEmbedder(f, {UNKNOWN_WORD:rand_embed[0], EOS:rand_embed[1]})
-            vocab =embbedder.word_index
+            word_index, weights = PretrainedEmbedder.load(f, {UNKNOWN_WORD: rand_embed[0], EOS: rand_embed[1]})
+            embbedder = PretrainedEmbedder(word_index, weights)
+            vocab = embbedder.word_index
     return embbedder, vocab

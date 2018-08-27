@@ -7,9 +7,9 @@ from chainer.backends import cuda
 
 class PretrainedEmbedder:
 
-    def __init__(self, handle, other_words_embed_dict=None):
+    def __init__(self, word_index, weights):
 
-        self.word_index, self.weights = PretrainedEmbedder.load(handle, other_words_embed_dict)
+        self.word_index, self.weights = word_index, weights
         self.__weights__ = None
 
     def __call__(self, array):
@@ -31,6 +31,8 @@ sandberger 0.072617 -0.51393 0.4728 -0.52202 -0.35534 0.34629 0.23211 0.23096 0.
         embeddings_array = []
         other_words_embed_dict = other_words_embed_dict or {}
         xp = cuda.get_array_module()
+
+        # Load embeddings from file
         for line in handle:
             values = line.split()
             word = values[0]
@@ -38,14 +40,15 @@ sandberger 0.072617 -0.51393 0.4728 -0.52202 -0.35534 0.34629 0.23211 0.23096 0.
             word_index_dict[word] = len(word_index_dict)
             embeddings_array.append(embeddings)
 
+        # Add random embeddings for additional words that do not exist in handle
         for w in other_words_embed_dict.keys():
             if word_index_dict.get(w, None) is None:
                 word_index_dict[w] = len(word_index_dict)
                 embeddings_array.append(xp.asarray(other_words_embed_dict[w], dtype='float32'))
 
+        # Convert to ndarray or cupy
         embeddings_array = xp.asarray(embeddings_array, dtype='float32')
         return word_index_dict, embeddings_array
-
 
     @property
     def logger(self):

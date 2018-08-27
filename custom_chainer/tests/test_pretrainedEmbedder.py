@@ -19,7 +19,9 @@ class TestPretrainedEmbedder(TestCase):
         actual = np.random.randint(0, 100, size=(no_words, embed_len))
 
         # Act
-        sut = PretrainedEmbedder(get_mock_embed_handle, other_words_embed)
+        word_index, weights = PretrainedEmbedder.load(handle=get_mock_embed_handle,
+                                                      other_words_embed_dict=other_words_embed)
+        sut = PretrainedEmbedder(word_index, weights)
         sut(actual)
 
         # Assert
@@ -36,7 +38,8 @@ class TestPretrainedEmbedder(TestCase):
         actual = np.random.randint(0, 100, size=(no_words * 2, embed_len))
 
         # Act
-        sut = PretrainedEmbedder(get_mock_embed_handle, other_words_embed)
+        word_index, weights = PretrainedEmbedder.load(handle=get_mock_embed_handle, other_words_embed_dict= other_words_embed)
+        sut = PretrainedEmbedder(word_index, weights)
         sut(actual)
 
         # Assert
