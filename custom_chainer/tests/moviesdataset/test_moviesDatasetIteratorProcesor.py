@@ -1,11 +1,9 @@
 from unittest import TestCase
-import os
 
 import numpy
-from ddt import ddt, data, unpack
+from ddt import ddt
 
 from NlpUtils import UNKNOWN_WORD, EOS
-from dataprep.YelpChainerDataset import YelpChainerDataset
 from moviesdataset.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
 
 
@@ -39,7 +37,6 @@ class TestMoviesDatasetIteratorProcesor(TestCase):
         # Assert
         expected_token_len = 4
         self.assertEqual(len(actual[0]), expected_token_len)
-
 
     def test__len(self):
         # Arrange
