@@ -27,7 +27,21 @@ class TestMoviesDatasetIteratorProcesor(TestCase):
         self.assertSequenceEqual(actual[0].tolist(), expected[0].tolist())
         self.assertEqual(actual[1], expected[1])
 
-    def test_getcount(self):
+    def test__getline_without_vocab(self):
+        data = [["splash even", 1]
+            , ["splash even greater", 0]]
+
+        sut = MovieDatasetIteratorProcessor(data)
+
+        # Act
+        actual = sut[1]
+
+        # Assert
+        expected_token_len = 4
+        self.assertEqual(len(actual[0]), expected_token_len)
+
+
+    def test__len(self):
         # Arrange
         data = [["splash even greater than arnold schwarzenegger , jean-claud van damme or steven segal .", 1]
             , ["splash even greater than arnold schwarzenegger ", 0]]
