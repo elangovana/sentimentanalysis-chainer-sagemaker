@@ -9,6 +9,7 @@ from chainer import training
 from chainer.training import extensions
 
 import TextClassifier
+from encoders.PretrainedEmbedderLoader import PretrainedEmbedderLoader
 from utils.NlpUtils import UNKNOWN_WORD, EOS
 
 from encoders.BOWNLPEncoder import BOWMLPEncoder
@@ -146,7 +147,7 @@ def get_embedder(embedding_file, unit):
     rand_embed = np.random.uniform(-0.5, .5, size=(2, unit))
     if (embedding_file is not None):
         with open(embedding_file, encoding='utf-8') as f:
-            word_index, weights = PretrainedEmbedder.load(f, {UNKNOWN_WORD: rand_embed[0], EOS: rand_embed[1]})
+            word_index, weights = PretrainedEmbedderLoader()(f, {UNKNOWN_WORD: rand_embed[0], EOS: rand_embed[1]})
             embbedder = PretrainedEmbedder(word_index, weights)
             vocab = embbedder.word_index
     return embbedder, vocab
