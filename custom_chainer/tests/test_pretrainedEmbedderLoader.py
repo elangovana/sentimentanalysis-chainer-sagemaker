@@ -44,8 +44,10 @@ class TestPretrainedEmbedder(TestCase):
                                                 other_words_embed_dict=other_words_embed, filter=lambda x: x.startswith(prefix))
 
         # Assert
-        self.assertEqual(len(actual_weights), no_words)
-
+        self.assertEqual(len(actual_weights), len(other_words_embed))
+        for w, e in other_words_embed.items():
+            index = actual_word_index[w]
+            self.assertSequenceEqual(actual_weights[index].tolist(), e.tolist())
 
 
     def test_should_return_embeddings_unknown(self):
