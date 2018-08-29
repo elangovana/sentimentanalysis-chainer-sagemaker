@@ -1,20 +1,20 @@
 from unittest import TestCase
-from ddt import ddt
+from ddt import ddt, data, unpack
 from utils.VocabFilter import VocabFilter
 
 
 @ddt
 class TestVocabFilter(TestCase):
 
-    def test__call(self):
-        vocab = {"word1": 1, "word2": 2}
-        tokens_count_dict = {"word2": 10, "word3": 5, "word1": 1}
-
-        sut = VocabFilter(tokens_count_dict=tokens_count_dict, min_frequency=2)
+    @data(("black", 2, 10, True))
+    @data(("jack", 2, 1, False))
+    @unpack
+    def test__call(self, word, min_freq, max_vocab_size, expected):
+        tokens_count_dict = {"black": 10, "jack": 5, "memo": 1}
+        sut = VocabFilter(tokens_count_dict=tokens_count_dict, min_frequency=min_freq, max_vocab_size=max_vocab_size)
 
         # Act
-        actual = sut(vocab=vocab)
+        actual = sut(word)
 
         # Assert
-        expected = {"word2": 2}
         self.assertEqual(actual, expected)
