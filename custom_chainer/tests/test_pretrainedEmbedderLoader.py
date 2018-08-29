@@ -28,6 +28,26 @@ class TestPretrainedEmbedder(TestCase):
             index = actual_word_index[w]
             self.assertSequenceEqual(actual_weights[index].tolist(), e.tolist())
 
+    def test_should_return_embeddings_with_filter(self):
+        ## Arrange
+        prefix = "random_word_"
+        embed_len = 10
+        no_words = 12
+        words_array = ["{}{}".format(prefix,r) for r in range(0, no_words)]
+        other_words_embed = self.get_other_words_embed(embed_len, no_words)
+        emdedding = np.random.randint(0, 100, size=(no_words, embed_len))
+        get_mock_embed_handle = self.get_mock_embedding_handle(words_array, emdedding)
+
+        # Act filter all words
+        sut = PretrainedEmbedderLoader()
+        actual_word_index, actual_weights = sut(handle=get_mock_embed_handle,
+                                                other_words_embed_dict=other_words_embed, filter=lambda x: x.startswith(prefix))
+
+        # Assert
+        self.assertEqual(len(actual_weights), no_words)
+
+
+
     def test_should_return_embeddings_unknown(self):
         ## Arrange
         embed_len = 10
@@ -36,7 +56,6 @@ class TestPretrainedEmbedder(TestCase):
         other_words_embed = self.get_other_words_embed(embed_len, no_words)
         emdedding = np.random.randint(0, 100, size=(no_words, embed_len))
         get_mock_embed_handle = self.get_mock_embedding_handle(words_array, emdedding)
-        actual = np.random.randint(0, 100, size=(no_words * 2, embed_len))
 
         # Act
         sut = PretrainedEmbedderLoader()

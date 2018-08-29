@@ -7,7 +7,7 @@ class VocabFilter:
 
     def __call__(self, word):
         top_words_vocab = self.top_words_vocab
-        return word in top_words_vocab
+        return not (word in top_words_vocab)
 
     @property
     def top_words_vocab(self):
