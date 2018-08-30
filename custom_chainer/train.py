@@ -34,14 +34,17 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model,
     train, test = data_processor.parse(
         dataset, char_based=char_based)
 
-    vocab = make_vocab(train, max_vocab_size=max_vocab_size, min_freq=min_word_frequency, tokens_index=0)
     word_count_dict = get_counts_by_token(train, tokens_index=0)
+    logger.info('Total tokens found in data: {}'.format(len(word_count_dict)))
+
     embbedder = None
     if embedding_file is not None:
         vocabfilter = VocabFilter(word_count_dict, max_vocab_size=max_vocab_size, min_frequency=min_word_frequency)
-        embbedder, vocab = get_embedder(embedding_file, unit, filter=vocabfilter)
+        embbedder, vocab = get_embedder(embedding_file, unit, vocab_filter=vocabfilter)
+    else:
+        vocab = make_vocab(train, max_vocab_size=max_vocab_size, min_freq=min_word_frequency, tokens_index=0)
 
-    test, train, vocab = data_processor.one_hot_encode(train, test, vocab)
+    test, train, _ = data_processor.one_hot_encode(train, test, vocab)
 
     logger.info('# train data: {}'.format(len(train)))
     logger.info('# test  data: {}'.format(len(test)))
@@ -152,14 +155,14 @@ def persist(out_path, args_to_persist, current_datetime, n_class, vocab):
         json.dump(model_setup, f)
 
 
-def get_embedder(embedding_file, unit, filter):
+def get_embedder(embedding_file, unit, vocab_filter):
     embbedder = None
     vocab = None
     rand_embed = np.random.uniform(-0.5, .5, size=(2, unit))
     if (embedding_file is not None):
         with open(embedding_file, encoding='utf-8') as f:
             word_index, weights = PretrainedEmbedderLoader()(f, {UNKNOWN_WORD: rand_embed[0], EOS: rand_embed[1]},
-                                                             filter)
+                                                             vocab_filter)
             embbedder = PretrainedEmbedder(word_index, weights)
             vocab = embbedder.word_index
     return embbedder, vocab
