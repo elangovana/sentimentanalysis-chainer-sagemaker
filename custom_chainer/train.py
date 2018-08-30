@@ -22,25 +22,23 @@ from utils.VocabFilter import VocabFilter
 
 
 def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model, no_layers, out,
-              unit, embedding_file=None, shuffle=False, max_vocab_size=10000, min_word_frequency = 10):
+              unit, embedding_file=None, shuffle=False, max_vocab_size=20000, min_word_frequency=10):
     # Has to be the first line so that the args can be persisted
     current_args = locals()
     current_datetime = '{}'.format(datetime.datetime.today())
 
     logger = logging.getLogger(__name__)
 
-
-
     data_processor = YelpReviewDatasetProcessor()
 
     train, test = data_processor.parse(
         dataset, char_based=char_based)
 
-    vocab = make_vocab(train)
-    word_count_dict = get_counts_by_token(train)
+    vocab = make_vocab(train, max_vocab_size=max_vocab_size, min_freq=min_word_frequency, tokens_index=0)
+    word_count_dict = get_counts_by_token(train, tokens_index=0)
     embbedder = None
     if embedding_file is not None:
-        vocabfilter = VocabFilter(word_count_dict,max_vocab_size=max_vocab_size, min_frequency=min_word_frequency )
+        vocabfilter = VocabFilter(word_count_dict, max_vocab_size=max_vocab_size, min_frequency=min_word_frequency)
         embbedder, vocab = get_embedder(embedding_file, unit, filter=vocabfilter)
 
     test, train, vocab = data_processor.one_hot_encode(train, test, vocab)
@@ -54,7 +52,6 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model,
         "Class distribution: \n{}".format(np.asarray((unique_classes, counts_classes))))
 
     n_class = len(unique_classes)
-
 
     train_iter = chainer.iterators.SerialIterator(train, batchsize, shuffle=shuffle)
     test_iter = chainer.iterators.SerialIterator(test, batchsize,
