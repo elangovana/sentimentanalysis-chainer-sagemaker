@@ -10,7 +10,7 @@ from chainer.training import extensions
 
 import TextClassifier
 from encoders.PretrainedEmbedderLoader import PretrainedEmbedderLoader
-from utils.NlpUtils import UNKNOWN_WORD, EOS
+from utils.NlpUtils import UNKNOWN_WORD, EOS, make_vocab, get_counts_by_token
 
 from encoders.BOWNLPEncoder import BOWMLPEncoder
 from encoders.CNNEncoder import CNNEncoder
@@ -18,21 +18,33 @@ from encoders.PretrainedEmbedder import PretrainedEmbedder
 from encoders.RNNEncoder import RNNEncoder
 from gpu_utils import convert_seq
 from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
+from utils.VocabFilter import VocabFilter
 
 
 def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model, no_layers, out,
-              unit, embedding_file=None):
+              unit, embedding_file=None, shuffle=False, max_vocab_size=10000, min_word_frequency = 10):
     # Has to be the first line so that the args can be persisted
     current_args = locals()
     current_datetime = '{}'.format(datetime.datetime.today())
 
     logger = logging.getLogger(__name__)
 
-    embbedder, vocab = get_embedder(embedding_file, unit)
+
 
     data_processor = YelpReviewDatasetProcessor()
-    train, test, vocab = data_processor.get_dataset(
-        dataset, char_based=char_based, vocab=vocab)
+
+    train, test = data_processor.parse(
+        dataset, char_based=char_based)
+
+    vocab = make_vocab(train)
+    word_count_dict = get_counts_by_token(train)
+    embbedder = None
+    if embedding_file is not None:
+        vocabfilter = VocabFilter(word_count_dict,max_vocab_size=max_vocab_size, min_frequency=min_word_frequency )
+        embbedder, vocab = get_embedder(embedding_file, unit, filter=vocabfilter)
+
+    test, train, vocab = data_processor.one_hot_encode(train, test, vocab)
+
     logger.info('# train data: {}'.format(len(train)))
     logger.info('# test  data: {}'.format(len(test)))
     logger.info('# vocab: {}'.format(len(vocab)))
@@ -43,9 +55,8 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model,
 
     n_class = len(unique_classes)
 
-    # TODO: Make shuffle as option..Shuffling is set to false because assuming that the splitter is already run, which shuffles the data.
 
-    train_iter = chainer.iterators.SerialIterator(train, batchsize, shuffle=False)
+    train_iter = chainer.iterators.SerialIterator(train, batchsize, shuffle=shuffle)
     test_iter = chainer.iterators.SerialIterator(test, batchsize,
                                                  repeat=False, shuffle=False)
     # Setup a model
@@ -54,6 +65,7 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model,
         Encoder = RNNEncoder
     # elif model == 'bow':
     #     Encoder = BOWMLPEncoder
+
     encoder = Encoder(n_layers=no_layers, n_vocab=len(vocab), n_units=unit, dropout=dropout, embedder=embbedder)
 
     model = TextClassifier.TextClassifier(encoder, n_class)
@@ -122,32 +134,35 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model,
     # Print a progress bar to stdout
     # trainer.extend(extensions.ProgressBar())
     # Save vocabulary and model's setting
-    if not os.path.isdir(out):
-        os.mkdir(out)
-
-    vocab_path = os.path.join(out, 'vocab.json')
-
-    with open(vocab_path, 'w') as f:
-        json.dump(vocab, f)
-    model_path = os.path.join(out, 'best_model.npz')
-    model_setup = current_args
-    model_setup['vocab_path'] = vocab_path
-    model_setup['model_path'] = model_path
-    model_setup['n_class'] = n_class
-    model_setup['datetime'] = current_datetime
-    with open(os.path.join(out, 'args.json'), 'w') as f:
-        json.dump(model_setup, f)
+    persist(out, current_args, current_datetime, n_class, vocab)
     # Run the training
     trainer.run()
 
 
-def get_embedder(embedding_file, unit):
+def persist(out_path, args_to_persist, current_datetime, n_class, vocab):
+    if not os.path.isdir(out_path):
+        os.mkdir(out_path)
+    vocab_path = os.path.join(out_path, 'vocab.json')
+    with open(vocab_path, 'w') as f:
+        json.dump(vocab, f)
+    model_path = os.path.join(out_path, 'best_model.npz')
+    model_setup = args_to_persist
+    model_setup['vocab_path'] = vocab_path
+    model_setup['model_path'] = model_path
+    model_setup['n_class'] = n_class
+    model_setup['datetime'] = current_datetime
+    with open(os.path.join(out_path, 'args.json'), 'w') as f:
+        json.dump(model_setup, f)
+
+
+def get_embedder(embedding_file, unit, filter):
     embbedder = None
     vocab = None
     rand_embed = np.random.uniform(-0.5, .5, size=(2, unit))
     if (embedding_file is not None):
         with open(embedding_file, encoding='utf-8') as f:
-            word_index, weights = PretrainedEmbedderLoader()(f, {UNKNOWN_WORD: rand_embed[0], EOS: rand_embed[1]})
+            word_index, weights = PretrainedEmbedderLoader()(f, {UNKNOWN_WORD: rand_embed[0], EOS: rand_embed[1]},
+                                                             filter)
             embbedder = PretrainedEmbedder(word_index, weights)
             vocab = embbedder.word_index
     return embbedder, vocab

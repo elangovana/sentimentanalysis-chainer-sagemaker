@@ -6,37 +6,47 @@ import numpy
 
 from utils.NlpUtils import split_text, normalize_text, make_vocab, transform_to_array
 
-
+#TODO: Clean up this class
 class YelpReviewDatasetProcessor:
-    def __init__(self):
-        self._logger = logging.getLogger(__name__)
 
-    def get_dataset(self, name_path_list, vocab=None, shrink=1,
-                    char_based=False, seed=777):
+
+    @property
+    def logger(self):
+        return logging.getLogger(__name__)
+
+    def parse(self, name_path_list,
+              char_based=False, seed=777):
         datasets = name_path_list
-        self._logger.info("Reading dataset and converting to vocabulary")
+        self.logger.info("Reading dataset and converting to vocabulary")
+
+
         train = self.read_data(
             datasets[0], char_based=char_based)
+
+
+
         if len(datasets) == 2:
             test = self.read_data(
                 datasets[1], char_based=char_based)
+
+
         else:
-            self._logger.info("No test data, hence randomly partitioning dataset into train and test")
+            self.logger.info("No test data, hence randomly partitioning dataset into train and test")
             numpy.random.seed(seed)
             alldata = numpy.random.RandomState(seed=seed).permutation(train)
             train = alldata[:-len(alldata) // 10]
             test = alldata[-len(alldata) // 10:]
 
+        self.logger.info("Completed dataset parsing")
+        return train, test
 
+    def one_hot_encode(self, train, test, vocab=None):
         if vocab is None:
-            self._logger.info('Constructing vocabulary based on frequency')
+            self.logger.info('Constructing vocabulary based on frequency')
             vocab = make_vocab(train)
-
         train = transform_to_array(train, vocab)
         test = transform_to_array(test, vocab)
-
-        self._logger.info("Completed dataset parsing")
-        return train, test, vocab
+        return test, train, vocab
 
     def read_data(self, path, char_based=False):
         """
@@ -73,7 +83,7 @@ class YelpReviewDatasetProcessor:
             label = -1
         review_text = l[5]
         tokens = self.extract_tokens(char_based, review_text)
-        self._logger.debug("The length of tokens is {}".format(len(tokens)))
+        self.logger.debug("The length of tokens is {}".format(len(tokens)))
         return tokens, label
 
     def extract_tokens(self, char_based, review_text):
