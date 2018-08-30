@@ -17,7 +17,7 @@ import gpu_utils
 from encoders import RNNEncoder
 from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
-
+#TODO: Cleanup code
 def setup_model(args):
     sys.stderr.write(json.dumps(args.__dict__, indent=2) + '\n')
     setup = json.load(open(args.model_setup))
