@@ -22,7 +22,7 @@ from utils.VocabFilter import VocabFilter
 
 
 def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model, no_layers, out,
-              unit, embedding_file=None, shuffle=False, max_vocab_size=20000, min_word_frequency=10):
+              unit, embedding_file=None, shuffle=True, max_vocab_size=20000, min_word_frequency=10):
     # Has to be the first line so that the args can be persisted
     current_args = locals()
     current_datetime = '{}'.format(datetime.datetime.today())
