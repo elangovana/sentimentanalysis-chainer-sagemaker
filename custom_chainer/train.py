@@ -39,7 +39,7 @@ def run_train(batchsize, char_based, dataset, dropout, epoch, max_gpu_id, model,
 
     embbedder = None
     if embedding_file is not None:
-        vocabfilter = VocabFilter(word_count_dict, max_vocab_size=max_vocab_size, min_frequency=min_word_frequency)
+        vocabfilter = VocabFilter(word_count_dict, max_vocab_size=max_vocab_size, min_frequency=min_word_frequency, priority_words={UNKNOWN_WORD, EOS})
         embbedder, vocab = get_embedder(embedding_file, unit, vocab_filter=vocabfilter)
     else:
         vocab = make_vocab(train, max_vocab_size=max_vocab_size, min_freq=min_word_frequency, tokens_index=0)

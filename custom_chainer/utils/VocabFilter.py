@@ -1,13 +1,13 @@
 class VocabFilter:
     def __init__(self, tokens_count_dict: dict, min_frequency: int = 2, max_vocab_size: int = 10000,
-                 filter_unknown_words=False):
+                 priority_words: set =None):
         """
-Filters word based on occurrence frequency. if the number of tokens is less than max_vocab_size, then the min frequency is ignored
+Filters word based on occurrence frequency. if the number of tokens is less than max_vocab_size, then the min frequency is ignored. The priority words are never filtered
         :param tokens_count_dict:
         :param min_frequency:
         :param max_vocab_size:
         """
-        self.filter_unknown_words = filter_unknown_words
+        self.priority_words = priority_words
         self.max_vocab_size = max_vocab_size
         self.tokens_count_dict = tokens_count_dict
         self.min_frequency = min_frequency
@@ -15,7 +15,7 @@ Filters word based on occurrence frequency. if the number of tokens is less than
 
     def __call__(self, word):
         # check if word exists in vocab first before applying the filter
-        if not (self.filter_unknown_words or not (word not in self.tokens_count_dict)):
+        if word in self.priority_words:
             return False
 
         return not (word in self.top_words_vocab)
