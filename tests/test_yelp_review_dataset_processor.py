@@ -12,7 +12,7 @@ class TestYelpReviewDatasetProcessor(TestCase):
     def test_read_data(self, file, expected_no_lines):
          #Arrange
          full_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), file)
-         sut = YelpReviewDatasetProcessor()
+         sut = YelpReviewDatasetProcessor(has_header=True)
 
          # Act
          actual = sut.read_data(full_file_path)

@@ -4,7 +4,9 @@ from unittest import TestCase
 import os
 from ddt import ddt, data, unpack
 
-from train import run_train
+
+
+from TrainPipelineBuilder import TrainPipelineBuilder
 from main_full_cycle import model_fn, input_fn, predict_fn, output_fn
 
 from pathlib import Path
@@ -31,10 +33,15 @@ class TestModel_fn(TestCase):
             full_testset_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), testdata)
             test_data_string = Path(full_testset_path).read_text()
             # Run Train
-            run_train(batchsize=10, char_based=False, dataset=[full_dataset_path], dropout=.4, epoch=10, max_gpu_id=-1,
-                      model="cnn",
-                      no_layers=1, out=temp_out, unit=unit, embedding_file=embed_file)
 
+
+            builder = TrainPipelineBuilder(data_has_header=True, batchsize=10, char_based=False,
+                                           dropout=.5,
+                                           epoch=10, gpus=None, no_layers=1,
+                                           embed_dim=unit, embedding_file=embed_file, max_vocab_size=20000,
+                                           min_word_frequency=1)
+
+            builder.run([full_dataset_path], 3, "cnn", temp_out)
             # Act + Assert
             model = model_fn(temp_out)
 

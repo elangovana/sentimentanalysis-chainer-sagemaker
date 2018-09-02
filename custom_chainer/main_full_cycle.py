@@ -5,9 +5,9 @@ import logging
 
 import sys
 
-from predict import get_model, get_formatted_input, predict, \
+from TrainPipelineBuilder import TrainPipelineBuilder
+from predict import  get_formatted_input, predict, \
     get_formatted_output
-from train import run_train
 
 
 def train():
@@ -46,7 +46,7 @@ def train():
     parser.add_argument('--char-based', action='store_true')
     parser.add_argument('--pretrained-embed-dir', default=os.environ.get('SM_CHANNEL_PRETRAINEDEMBED', None),
                         help='The path of the file containing the pretrained embeddings')
-    parser.add_argument('--pretrained-embed', default= None,
+    parser.add_argument('--pretrained-embed', default=None,
                         help='The name of the file containing the pretrained embeddings within the --pretrained-embed-dir directory')
     args = parser.parse_args()
 
@@ -55,7 +55,7 @@ def train():
     # args parse
 
     batchsize = args.batchsize
-    model = args.model
+    encoder_name = args.model
     training_set = os.path.join(args.traindata_dir, args.traindata)
     validation_set = os.path.join(args.testdata_dir, args.testdata) if args.testdata is not None else None
     dataset = [training_set, validation_set] if validation_set is not None else [training_set]
@@ -68,10 +68,16 @@ def train():
     out = args.out
     pretrained_embeddings = None
     if (args.pretrained_embed_dir is not None and args.pretrained_embed is not None):
-        pretrained_embeddings = os.path.join(args.pretrained_embed_dir , args.pretrained_embed)
+        pretrained_embeddings = os.path.join(args.pretrained_embed_dir, args.pretrained_embed)
 
-    run_train(batchsize, char_based, dataset, dropout, epoch, gpu, model, no_layers, out,
-              unit, embedding_file=pretrained_embeddings)
+    builder = TrainPipelineBuilder(data_has_header = False,batchsize=batchsize, char_based=char_based,  dropout=dropout,
+                                        epoch=epoch, gpus=gpu, no_layers=no_layers,
+                                        embed_dim=unit, embedding_file=pretrained_embeddings, max_vocab_size = 20000, min_word_frequency = 5)
+
+
+    builder.run(dataset,3, encoder_name, out)
+
+
 
 
 def model_fn(model_dir):
@@ -83,8 +89,14 @@ def model_fn(model_dir):
                 model_full_path = root
                 break
 
-    return get_model(model_full_path, os.environ.get('SM_NUM_GPUS', 0) - 1)
+    model,  vocab, setup_json = TrainPipelineBuilder.load(model_full_path)
+    return (model, vocab, setup_json)
 
+
+
+def get_gpus():
+    no_of_gpus =os.environ.get('SM_NUM_GPUS', 0)
+    return [ g for g in range(0, no_of_gpus)]
 
 def input_fn(request_body, request_content_type):
     logger = logging.getLogger(__name__)
@@ -93,7 +105,7 @@ def input_fn(request_body, request_content_type):
 
 
 def predict_fn(input_object, model):
-    return predict(input_object, model, os.environ.get('SM_NUM_GPUS', 0) - 1)
+    return predict(input_object, model, get_gpus())
 
 
 # Serialize the prediction result into the desired response content type
