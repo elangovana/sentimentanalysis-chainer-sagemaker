@@ -28,10 +28,11 @@ class VocabularyBuilder:
         word_count_dict = get_counts_by_token(dataset, tokens_index=0)
         self.logger.info('Total tokens found in data: {}'.format(len(word_count_dict)))
 
-        weights = None
+        # If embedding file, load weights from embedding file.
         if embedding_file is not None:
             weights, vocab = self._get_vocab_weights(embedding_file, embed_dim, vocab_filter=vocab_filter)
         else:
+            # No embedding file so create vocab and assign random weights vector to each word.
             vocab = make_vocab(dataset, max_vocab_size=self.max_vocab_size, min_freq=self.min_word_frequency,
                                tokens_index=0)
             weights = np.random.uniform(-0.5, .5, size=(len(vocab), embed_dim))
@@ -41,12 +42,14 @@ class VocabularyBuilder:
     def _get_vocab_weights(self, embedding_file, embed_dim, vocab_filter):
         weights = None
         vocab = None
-        unknown_words_rand = np.random.uniform(-0.5, .5, size=(2, embed_dim))
         if embedding_file is None:  return weights, vocab
+
+        unknown_words_rand = np.random.uniform(-0.5, .5, size=(2, embed_dim))
 
         # load embeddings from file
         with open(embedding_file, encoding='utf-8') as f:
-            word_index, weights = self.embedder_loader(f, {UNKNOWN_WORD: unknown_words_rand[0], EOS: unknown_words_rand[1]},
+            word_index, weights = self.embedder_loader(f, {UNKNOWN_WORD: unknown_words_rand[0],
+                                                           EOS: unknown_words_rand[1]},
                                                        vocab_filter)
             vocab = word_index
 
