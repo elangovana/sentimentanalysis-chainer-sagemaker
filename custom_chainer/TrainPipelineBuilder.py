@@ -14,7 +14,7 @@ from encoders.BOWNLPEncoder import BOWMLPEncoder
 from encoders.CNNEncoder import CNNEncoder
 from encoders.PretrainedEmbedder import PretrainedEmbedder
 from encoders.RNNEncoder import RNNEncoder
-from utils.NlpUtils import get_counts_by_token, UNKNOWN_WORD, EOS
+from utils.NlpUtils import get_counts_by_token, UNKNOWN_WORD, EOS, transform_to_array
 from utils.VocabFilter import VocabFilter
 
 
@@ -39,7 +39,7 @@ class TrainPipelineBuilder:
         self.text_classifier = None
         self.vocab_builder = None
         self.trainer = None
-        self.vocab_filter=None
+        self.vocab_filter = None
 
     @property
     def vocab_builder(self):
@@ -50,16 +50,6 @@ class TrainPipelineBuilder:
     @vocab_builder.setter
     def vocab_builder(self, value):
         self.__vocab_builder__ = value
-
-    @property
-    def data_processor(self):
-        self.__data_processor__ = self.__data_processor__ or YelpReviewDatasetProcessor(self.data_has_header,
-                                                                                        self.char_based)
-        return self.__data_processor__
-
-    @data_processor.setter
-    def data_processor(self, value):
-        self.__data_processor__ = value
 
     @property
     def text_classifier(self):
@@ -88,14 +78,20 @@ class TrainPipelineBuilder:
     def trainer(self, value):
         self.__trainer__ = value
 
-    def run(self, dataset, n_class, encoder_name, output_dir):
-        word_count_dict = get_counts_by_token(dataset)
+    def run(self, dataset_iterator, n_class, encoder_name, output_dir, validationset_iterator=None):
+        #Split data set if no validation set
+        if validationset_iterator is None:
+            dataset_iterator, validationset_iterator = chainer.datasets.split_dataset_random(dataset_iterator, int(
+                len(dataset_iterator) * 0.7) + 1, seed=777)
+
+        word_count_dict = get_counts_by_token(dataset_iterator)
 
         filter = self.vocab_filter(word_count_dict, max_vocab_size=self.max_vocab_size,
-                          min_frequency=self.min_word_frequency,
-                          priority_words={UNKNOWN_WORD, EOS})
+                                   min_frequency=self.min_word_frequency,
+                                   priority_words={UNKNOWN_WORD, EOS})
 
-        weights, vocab = self.vocab_builder(dataset, self.embedding_file, embed_dim=self.embed_dim, vocab_filter=filter)
+        weights, vocab = self.vocab_builder(dataset_iterator, self.embedding_file, embed_dim=self.embed_dim,
+                                            vocab_filter=filter)
 
         # Setup a model
 
@@ -107,7 +103,11 @@ class TrainPipelineBuilder:
                              epoch=self.epoch, batchsize=self.batchsize, gpus=self.gpus)
 
         self.persist(output_dir, encoder_name, n_class, vocab, weights)
-        train(dataset, model, self.best_model_snapshot_name)
+
+        train_data = transform_to_array(dataset_iterator, vocab, with_label=True)
+        test_data = transform_to_array(validationset_iterator, vocab, with_label=True)
+
+        train(train_data, test_data, model, self.best_model_snapshot_name)
 
     def persist(self, out_path, encoder_name, n_class, vocab, weights):
         if not os.path.isdir(out_path):

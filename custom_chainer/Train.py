@@ -41,11 +41,10 @@ class Train:
     def extract_model(self):
         pass
 
-    def __call__(self, dataset, classifier, snapshot_model_name):
+    def __call__(self, train, test, classifier, snapshot_model_name):
         # Has to be the first line so that the args can be persisted
 
-        train, test = self.data_processor.parse(dataset)
-        test, train, _ = self.data_processor.transform(train, test, self.vocab)
+
 
         # Log some useful info
         self.logger.info(
