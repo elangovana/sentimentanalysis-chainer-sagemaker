@@ -1,13 +1,8 @@
-import datetime
-import json
 import logging
-import os
 import chainer
 import numpy as np
 from chainer import training
 from chainer.training import extensions
-
-import TextClassifier
 from gpu_utils import convert_seq
 
 
