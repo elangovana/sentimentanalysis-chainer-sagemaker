@@ -14,8 +14,8 @@ from main_full_cycle import model_fn, input_fn, predict_fn, output_fn
 
 from pathlib import Path
 
-from moviesdataset.MovieDatasetIterator import MovieDatasetIterator
-from moviesdataset.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
+from datasetmovies.MovieDatasetIterator import MovieDatasetIterator
+from datasetmovies.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
 
 
 @ddt

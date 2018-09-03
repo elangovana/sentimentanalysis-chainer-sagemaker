@@ -1,5 +1,5 @@
-from moviesdataset.MovieDatasetIterator import MovieDatasetIterator
-from moviesdataset.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
+from datasetmovies.MovieDatasetIterator import MovieDatasetIterator
+from datasetmovies.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
 
 
 class MovieDatasetFactory:

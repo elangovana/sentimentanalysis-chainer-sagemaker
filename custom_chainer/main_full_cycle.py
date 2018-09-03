@@ -7,9 +7,9 @@ import sys
 
 from TrainPipelineBuilder import TrainPipelineBuilder
 from yelpdataset.YelpDatasetFactory import YelpDatasetFactory
-from moviesdataset.MovieDatasetFactory import MovieDatasetFactory
-from moviesdataset.MovieDatasetIterator import MovieDatasetIterator
-from moviesdataset.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
+from datasetmovies.MovieDatasetFactory import MovieDatasetFactory
+from datasetmovies.MovieDatasetIterator import MovieDatasetIterator
+from datasetmovies.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
 from predict import get_formatted_input, predict, \
     get_formatted_output
 

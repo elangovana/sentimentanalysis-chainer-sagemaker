@@ -4,7 +4,7 @@ import numpy
 from ddt import ddt
 
 from utils.NlpUtils import UNKNOWN_WORD, EOS
-from moviesdataset.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
+from datasetmovies.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
 
 
 @ddt

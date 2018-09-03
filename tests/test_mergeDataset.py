@@ -5,8 +5,8 @@ import os
 
 from ddt import ddt, data, unpack
 
-from moviesdataset.constants import encoding
-from moviesdataset.MergeDataset import MergeDataset
+from datasetmovies.constants import encoding
+from datasetmovies.MergeDataset import MergeDataset
 
 
 @ddt
