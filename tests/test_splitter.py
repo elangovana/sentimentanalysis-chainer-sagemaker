@@ -13,12 +13,12 @@ class TestSplitter(TestCase):
     @unpack
     def test_split(self, inputfile, no_of_parts, expected_parts_dir):
         # Arrange
-        full_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), inputfile)
+        inputfile_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), inputfile)
         expected_parts_full_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), expected_parts_dir)
 
         temp_out_dir = tempfile.mkdtemp()
 
-        sut = Splitter(inputfile, temp_out_dir)
+        sut = Splitter(inputfile_fullpath, temp_out_dir)
 
         # Act
         sut.split(temp_out_dir, no_of_parts=no_of_parts)
