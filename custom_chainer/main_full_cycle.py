@@ -1,15 +1,12 @@
 import argparse
 import json
-import os
 import logging
-
+import os
 import sys
 
 from TrainPipelineBuilder import TrainPipelineBuilder
-from datasetyelp.YelpDatasetFactory import YelpDatasetFactory
 from datasetmovies.MovieDatasetFactory import MovieDatasetFactory
-from datasetmovies.MovieDatasetIterator import MovieDatasetIterator
-from datasetmovies.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
+from datasetyelp.YelpDatasetFactory import YelpDatasetFactory
 from predict import get_formatted_input, predict, \
     get_formatted_output
 

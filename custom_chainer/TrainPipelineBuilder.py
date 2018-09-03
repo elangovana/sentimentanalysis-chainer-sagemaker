@@ -1,6 +1,5 @@
 import datetime
 import json
-
 import os
 
 import chainer
@@ -8,8 +7,6 @@ import chainer
 import TextClassifier
 from Train import Train
 from VocabularyBuilder import VocabularyBuilder
-from datasetyelp.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
-
 from encoders.BOWNLPEncoder import BOWMLPEncoder
 from encoders.CNNEncoder import CNNEncoder
 from encoders.PretrainedEmbedder import PretrainedEmbedder
@@ -79,7 +76,7 @@ class TrainPipelineBuilder:
         self.__trainer__ = value
 
     def run(self, dataset_iterator, n_class, encoder_name, output_dir, validationset_iterator=None):
-        #Split data set if no validation set
+        # Split data set if no validation set
         if validationset_iterator is None:
             dataset_iterator, validationset_iterator = chainer.datasets.split_dataset_random(dataset_iterator, int(
                 len(dataset_iterator) * 0.7) + 1, seed=777)
