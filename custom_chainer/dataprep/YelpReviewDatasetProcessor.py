@@ -2,93 +2,86 @@ import csv
 import io
 import logging
 
+import chainer
 import numpy
 
-from utils.NlpUtils import split_text, normalize_text, make_vocab, transform_to_array
+from utils.NlpUtils import split_text, normalize_text, make_vocab, transform_to_array, make_array
 
 
 # TODO: Clean up this class
-class YelpReviewDatasetProcessor:
+class YelpReviewDatasetProcessor(chainer.dataset.iterator.Iterator):
 
-    def __init__(self, has_header,
-                 char_based=False, seed=777):
-
-        self.has_header = has_header
+    def __init__(self, iterator, vocab=None, seed=777):
+        super(YelpReviewDatasetProcessor, self).__init__()
         self.seed = seed
-        self.char_based = char_based
+        self.vocab = vocab
+        self.iterator = iterator
 
     @property
     def logger(self):
         return logging.getLogger(__name__)
 
-    def parse(self, name_path_list):
-        datasets = name_path_list
-        self.logger.info("Reading dataset and converting to vocabulary")
+    @property
+    def vocab(self):
+        self.__vocab__ = self.__vocab__ or self.construct_vocab()
+        return self.__vocab__
 
-        train = self.read_data(
-            datasets[0])
+    @vocab.setter
+    def vocab(self, value):
+        self.__vocab__ = value
 
-        if len(datasets) == 2:
-            test = self.read_data(
-                datasets[1])
+    def __getitem__(self, idx):
+        record = self.iterator[idx]
+        tokens = self.extract_tokens(self.get_review_text(record))
+        # construct array, so use word index from vocab
+        #tokens_index = make_array(tokens, self.vocab)
+        result = (tokens)
+        if self.has_label(record):
+            label = self.get_label(record)
+            result = (tokens, label)
+        return result
 
-
-        else:
-            self.logger.info("No test data, hence randomly partitioning dataset into train and test")
-            numpy.random.seed(self.seed)
-            alldata = numpy.random.RandomState(seed=self.seed).permutation(train)
-            train = alldata[:-len(alldata) // 10]
-            test = alldata[-len(alldata) // 10:]
-
-        self.logger.info("Completed dataset parsing")
-        return train, test
-
-    def transform(self, train, test, vocab=None):
-        if vocab is None:
-            self.logger.info('Constructing vocabulary based on frequency')
-            vocab = make_vocab(train)
-        train = transform_to_array(train, vocab)
-        test = transform_to_array(test, vocab)
-        return test, train, vocab
-
-    def read_data(self, path):
-        """
-        Expect a file with header in the following format
-        "review_id","user_id","business_id","stars","date","text","useful","funny","cool"
-        :param path:
-
-        :param char_based:
-        :return:
-        """
-
-        with io.open(path, encoding='utf-8', errors='ignore') as f:
-            dataset = self.parse_csv(f)
-        return dataset
-
-    def parse_csv(self, handle):
-        csv_reader = csv.reader(handle, delimiter=',', quotechar='"')
-        # Ignore header
-        if self.has_header: next(csv_reader)
-        dataset = []
-        for l in csv_reader:
-            tokens, label = self.process_line(l)
-            dataset.append((tokens, label))
-        return dataset
-
-    def process_line(self, l):
-        # Create label
-
-        rating = int(l[3])
-        label = 0
-        if rating > 3:
-            label = 1
-        elif rating < 3:
-            label = -1
-        review_text = l[5]
-        tokens = self.extract_tokens(review_text)
-        self.logger.debug("The length of tokens is {}".format(len(tokens)))
-        return tokens, label
+    def __len__(self):
+        return len(self.iterator)
 
     def extract_tokens(self, review_text):
-        tokens = split_text(normalize_text(review_text), self.char_based)
+        tokens = split_text(normalize_text(review_text), False)
         return tokens
+
+    def has_label(self, record):
+        # Assumes has label if the record has all the fields
+        return len(record) == 9
+
+    def get_label(self, record):
+        assert len(record) == 9
+
+        stars = int(record[3])
+        label = 0
+        if stars > 3:
+            label = 1
+        elif label < 3:
+            label = -1
+
+        return label
+
+    def __iter__(self):
+        return self.items()
+
+    def items(self):
+        for i in range(0, len(self)):
+            yield self[i]
+
+    def get_review_text(self, record):
+        if len(record) == 9:
+            return record[5]
+        if len(record) == 1:
+            return record[0]
+
+    def construct_vocab(self):
+        tokens_array = [[self.extract_tokens(self.get_review_text(record))] for record in self.iterator]
+        return make_vocab(tokens_array, tokens_index=0)
+
+
+
+
+

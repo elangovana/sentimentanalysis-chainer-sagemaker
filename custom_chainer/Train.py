@@ -23,23 +23,14 @@ class Train:
 
         self.encoder = encoder
 
-        self.data_processor = data_processor
         self.vocab = vocab
 
-    @property
-    def data_processor(self):
-        return self.__data_processor__
 
-    @data_processor.setter
-    def data_processor(self, value):
-        self.__data_processor__ = value
 
     @property
     def logger(self):
         return logging.getLogger(__name__)
 
-    def extract_model(self):
-        pass
 
     def __call__(self, train, test, classifier, snapshot_model_name):
         # Has to be the first line so that the args can be persisted

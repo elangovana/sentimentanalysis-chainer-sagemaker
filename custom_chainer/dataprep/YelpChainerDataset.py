@@ -43,6 +43,14 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
 
         return line
 
+    def __iter__(self):
+        return self.items()
+
+    def items(self):
+        for i in range(0, len(self)):
+            yield self[i]
+
+
     def _get_line_from_disk(self, idx):
         with io.open(self.filepath, encoding=self.encoding) as handle:
             line = self._getline(handle, idx)

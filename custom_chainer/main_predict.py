@@ -1,11 +1,11 @@
 import argparse
 
-from predict import run_batch, setup_model, run_online
+from predict import run_batch,  run_online
 
 
 def run_test():
     #global model, vocab, setup
-    model, vocab, setup = setup_model(args)
+    model, vocab, setup = Train(args)
     if args.gpu >= 0:
         run_batch(args.gpu,model,vocab,setup)
     else:

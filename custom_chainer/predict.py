@@ -3,19 +3,9 @@ import csv
 import json
 import sys
 from io import StringIO
-
 import chainer
-import os
-
-import utils.NlpUtils
-import encoders.RNNEncoder
-
-import TextClassifier
-import encoders.BOWNLPEncoder
-import encoders.CNNEncoder
+from utils.NlpUtils import normalize_text, split_text, transform_to_array
 import gpu_utils
-from encoders import RNNEncoder
-from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
 
 # #TODO: Cleanup code
@@ -54,8 +44,8 @@ from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
 def run_online(gpu, testdatafile, model, vocab, setup_json):
     # predict labels online
-    data_processor = YelpReviewDatasetProcessor(setup_json['char_based'])
-    test_data = data_processor.read_data(testdatafile)
+    with open(testdatafile, "r") as handle:
+        test_data = parse_csv(handle, False)
     tokens_list = [r[0] for r in test_data]
     run_inference(gpu, tokens_list, model, vocab)
 
@@ -65,7 +55,7 @@ def run_inference(gpus, test_data, model, vocab):
     for row in test_data:
         tokens = row
         print(tokens)
-        xs = utils.NlpUtils.transform_to_array([tokens], vocab, with_label=False)
+        xs = transform_to_array([tokens], vocab, with_label=False)
         # TODO investigate multi-gpu case
         device = -1
         if len(gpus) > 0:
@@ -84,7 +74,7 @@ def run_batch(gpu, model, vocab, setup_json, batchsize=64):
     # predict labels by batch
 
     def predict_batch(words_batch):
-        xs = utils.NlpUtils.transform_to_array(words_batch, vocab, with_label=False)
+        xs = transform_to_array(words_batch, vocab, with_label=False)
         xs = gpu_utils.convert_seq(xs, device=gpu, with_label=False)
         with chainer.using_config('train', False), chainer.no_backprop_mode():
             probs = model.predict(xs, softmax=True)
@@ -103,8 +93,8 @@ def run_batch(gpu, model, vocab, setup_json, batchsize=64):
                 batch = []
             print('# blank line')
             continue
-        text = utils.NlpUtils.normalize_text(l)
-        words = utils.NlpUtils.split_text(text, char_based=setup_json['char_based'])
+        text = normalize_text(l)
+        words = split_text(text, char_based=setup_json['char_based'])
         batch.append(words)
         if len(batch) >= batchsize:
             predict_batch(batch)
@@ -113,15 +103,6 @@ def run_batch(gpu, model, vocab, setup_json, batchsize=64):
         predict_batch(batch)
 
 
-# def get_model(model_dir, gpu = -1):
-#     with open(os.path.join(model_dir, "args.json")) as args_file:
-#         setup_json =json.load(args_file)
-#
-#     vocab_path =os.path.join(model_dir,  os.path.basename(setup_json["vocab_path"]))
-#     model_path =os.path.join(model_dir,  os.path.basename(setup_json["model_path"]))
-#
-#     model, vocab = extract_model(gpu, setup_json, vocab_path, model_path)
-#     return  (model, vocab , setup_json)
 
 
 def get_formatted_input(request_body, request_content_type):
@@ -133,12 +114,11 @@ def get_formatted_input(request_body, request_content_type):
 
 
 def parse_csv(handle, char_based):
-    data_processor = YelpReviewDatasetProcessor(char_based=char_based, has_header=False)
     csv_reader = csv.reader(handle, delimiter=',', quotechar='"')
 
     dataset = []
     for l in csv_reader:
-        tokens = data_processor.extract_tokens(l[0])
+        tokens = split_text(normalize_text((l[0])), False)
         dataset.append(tokens)
     return dataset
 
