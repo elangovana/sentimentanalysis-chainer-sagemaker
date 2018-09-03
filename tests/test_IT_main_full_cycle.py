@@ -8,8 +8,8 @@ from ddt import ddt, data, unpack
 
 
 from TrainPipelineBuilder import TrainPipelineBuilder
-from yelpdataset.YelpChainerDataset import YelpChainerDataset
-from yelpdataset.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
+from datasetyelp.YelpChainerDataset import YelpChainerDataset
+from datasetyelp.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 from main_full_cycle import model_fn, input_fn, predict_fn, output_fn
 
 from pathlib import Path

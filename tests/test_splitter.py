@@ -3,7 +3,7 @@ from unittest import TestCase
 import os
 from ddt import ddt, data, unpack
 
-from yelpdataset.Splitter import Splitter
+from datasetyelp.Splitter import Splitter
 
 
 @ddt

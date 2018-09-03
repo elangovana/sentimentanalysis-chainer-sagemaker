@@ -2,7 +2,7 @@ from unittest import TestCase
 import os
 from ddt import ddt, data, unpack
 
-from yelpdataset.YelpChainerDataset import YelpChainerDataset
+from datasetyelp.YelpChainerDataset import YelpChainerDataset
 
 
 @ddt

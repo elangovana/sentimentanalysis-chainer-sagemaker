@@ -5,7 +5,7 @@ import os
 import chainer
 from chainer import iterators
 
-import yelpdataset.YelpChainerDataset
+import datasetyelp.YelpChainerDataset
 
 
 class Splitter:
@@ -30,7 +30,7 @@ class Splitter:
 
         # Prepare dataset
         if os.path.isfile(self.file_or_dir):
-            dataset = yelpdataset.YelpChainerDataset.YelpChainerDataset(self.file_or_dir, delimiter=self.delimiter,
+            dataset = datasetyelp.YelpChainerDataset.YelpChainerDataset(self.file_or_dir, delimiter=self.delimiter,
                                                                         encoding=self.encoding,
                                                                         quote_character=self.quote_character,
                                                                         has_header=self.has_header,
@@ -75,7 +75,7 @@ class Splitter:
         for f in os.listdir(base_dir):
             full_path = os.path.join(base_dir, f)
             datasets.append(
-                yelpdataset.YelpChainerDataset.YelpChainerDataset(full_path, delimiter=self.delimiter,
+                datasetyelp.YelpChainerDataset.YelpChainerDataset(full_path, delimiter=self.delimiter,
                                                                   has_header=self.has_header,
                                                                   encoding=self.encoding,
                                                                   quote_character=self.quote_character,

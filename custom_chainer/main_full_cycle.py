@@ -6,7 +6,7 @@ import logging
 import sys
 
 from TrainPipelineBuilder import TrainPipelineBuilder
-from yelpdataset.YelpDatasetFactory import YelpDatasetFactory
+from datasetyelp.YelpDatasetFactory import YelpDatasetFactory
 from datasetmovies.MovieDatasetFactory import MovieDatasetFactory
 from datasetmovies.MovieDatasetIterator import MovieDatasetIterator
 from datasetmovies.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
