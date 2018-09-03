@@ -1,9 +1,8 @@
 import csv
 import io
-from io import StringIO
+import logging
 
 import chainer
-import logging
 
 
 class YelpChainerDataset(chainer.dataset.iterator.Iterator):
@@ -49,7 +48,6 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
     def items(self):
         for i in range(0, len(self)):
             yield self[i]
-
 
     def _get_line_from_disk(self, idx):
         with io.open(self.filepath, encoding=self.encoding) as handle:
