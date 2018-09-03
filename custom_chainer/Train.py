@@ -13,8 +13,7 @@ from gpu_utils import convert_seq
 
 # TODO: Cleanup code
 class Train:
-    def __init__(self,
-                 data_processor, encoder, vocab, out_dir, epoch, batchsize, gpus=None):
+    def __init__(self,encoder, vocab, out_dir, epoch, batchsize, gpus=None):
 
         self.batchsize = batchsize
         self.gpus = gpus or []
@@ -39,12 +38,11 @@ class Train:
 
         # Log some useful info
         self.logger.info(
-            '# train data: {}, # test data {}, # vocab size '.format(len(train), len(test), len(self.vocab)))
+            '# train data: {}, # test data {}, # vocab size {}'.format(len(train), len(test), len(self.vocab)))
         n_classes = [int(d[1]) for d in train]
         unique_classes, counts_classes = np.unique(n_classes, return_counts=True)
         self.logger.info("Class distribution: \n{}".format(np.asarray((unique_classes, counts_classes))))
 
-        n_class = len(unique_classes)
         train_iter = chainer.iterators.SerialIterator(train, self.batchsize, shuffle=True)
         test_iter = chainer.iterators.SerialIterator(test, self.batchsize, repeat=False, shuffle=False)
 

@@ -6,17 +6,29 @@ import logging
 import sys
 
 from TrainPipelineBuilder import TrainPipelineBuilder
-from predict import  get_formatted_input, predict, \
+from dataprep.YelpDatasetFactory import YelpDatasetFactory
+from moviesdataset.MovieDatasetFactory import MovieDatasetFactory
+from moviesdataset.MovieDatasetIterator import MovieDatasetIterator
+from moviesdataset.MovieDatasetIteratorProcessor import MovieDatasetIteratorProcessor
+from predict import get_formatted_input, predict, \
     get_formatted_output
 
 
 def train():
     logger = logging.getLogger(__name__)
 
+    datasets = {MovieDatasetFactory().name: MovieDatasetFactory(), YelpDatasetFactory().name: YelpDatasetFactory()}
+    n_classes ={MovieDatasetFactory().name: 2, YelpDatasetFactory().name: 3}
+
     parser = argparse.ArgumentParser(
         description='Chainer example: Text Classification')
+    parser.add_argument('--dataset-type', required=True,
+                        help='The type of dataset', choices=datasets.keys())
+
     parser.add_argument('--traindata', required=True,
                         help='The dataset file with respect to the train directory')
+
+
     parser.add_argument('--traindata-dir',
                         help='The directory containing training artifacts such as training data',
                         default=os.environ.get('SM_CHANNEL_TRAIN', "."))
@@ -56,28 +68,29 @@ def train():
 
     batchsize = args.batchsize
     encoder_name = args.model
-    training_set = os.path.join(args.traindata_dir, args.traindata)
-    validation_set = os.path.join(args.testdata_dir, args.testdata) if args.testdata is not None else None
-    dataset = [training_set, validation_set] if validation_set is not None else [training_set]
+    dataset_type = args.dataset_type
+    training_set = datasets[dataset_type].get_dataset(os.path.join(args.traindata_dir, args.traindata))
+    validation_set = datasets[dataset_type].get_dataset(
+        os.path.join(args.testdata_dir, args.testdata)) if args.testdata is not None else None
     char_based = args.char_based
     no_layers = args.layer
     unit = args.unit
     dropout = args.dropout
-    gpu = args.gpu
+    gpus = [ g for g in range(0,args.gpu)]
     epoch = args.epoch
     out = args.out
+    n_class = n_classes[dataset_type]
+
     pretrained_embeddings = None
     if (args.pretrained_embed_dir is not None and args.pretrained_embed is not None):
         pretrained_embeddings = os.path.join(args.pretrained_embed_dir, args.pretrained_embed)
 
-    builder = TrainPipelineBuilder(data_has_header = False,batchsize=batchsize, char_based=char_based,  dropout=dropout,
-                                        epoch=epoch, gpus=gpu, no_layers=no_layers,
-                                        embed_dim=unit, embedding_file=pretrained_embeddings, max_vocab_size = 20000, min_word_frequency = 5)
+    builder = TrainPipelineBuilder(data_has_header=False, batchsize=batchsize, char_based=char_based, dropout=dropout,
+                                   epoch=epoch, gpus=gpus, no_layers=no_layers,
+                                   embed_dim=unit, embedding_file=pretrained_embeddings, max_vocab_size=20000,
+                                   min_word_frequency=5)
 
-
-    builder.run(dataset,3, encoder_name, out)
-
-
+    builder.run(training_set, n_class, encoder_name, out, validationset_iterator=validation_set)
 
 
 def model_fn(model_dir):
@@ -89,14 +102,14 @@ def model_fn(model_dir):
                 model_full_path = root
                 break
 
-    model,  vocab, setup_json = TrainPipelineBuilder.load(model_full_path)
+    model, vocab, setup_json = TrainPipelineBuilder.load(model_full_path)
     return (model, vocab, setup_json)
 
 
-
 def get_gpus():
-    no_of_gpus =os.environ.get('SM_NUM_GPUS', 0)
-    return [ g for g in range(0, no_of_gpus)]
+    no_of_gpus = os.environ.get('SM_NUM_GPUS', 0)
+    return [g for g in range(0, no_of_gpus)]
+
 
 def input_fn(request_body, request_content_type):
     logger = logging.getLogger(__name__)

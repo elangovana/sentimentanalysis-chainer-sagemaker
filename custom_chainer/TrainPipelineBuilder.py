@@ -99,7 +99,7 @@ class TrainPipelineBuilder:
 
         model = self.text_classifier(encoder, n_class)
 
-        train = self.trainer(data_processor=self.data_processor, encoder=encoder, vocab=vocab, out_dir=output_dir,
+        train = self.trainer(encoder=encoder, vocab=vocab, out_dir=output_dir,
                              epoch=self.epoch, batchsize=self.batchsize, gpus=self.gpus)
 
         self.persist(output_dir, encoder_name, n_class, vocab, weights)

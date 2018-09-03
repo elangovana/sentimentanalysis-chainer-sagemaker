@@ -15,7 +15,11 @@ python ./custom_chainer/dataprep/Main.py $inputyelpreviewfile $outputdatadir shu
 ## How to run
 ### 1. Train locally
 ```bash
-python custom_chainer/main_full_cycle.py  --traindata custom_chainer/tests/data/sample_train.csv   -g -1  --epoch 100 --out result
+python custom_chainer/main_full_cycle.py  --dataset-type yelp --traindata tests/data/sample_train.csv   -g -1  --epoch 100 --out result
+```
+
+```bash
+python custom_chainer/main_full_cycle.py  --dataset-type movie --traindata tests/data/movies_sample_dataset.csv   -g -1  --epoch 100 --out result
 ```
 
 ### 2. Test locally

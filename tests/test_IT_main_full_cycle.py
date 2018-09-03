@@ -91,7 +91,7 @@ class TestModel_fn(TestCase):
                                            min_word_frequency=1)
             iterator = MovieDatasetIterator(full_dataset_path)
             data_processor = MovieDatasetIteratorProcessor(iterator)
-            builder.run(data_processor, 3, "cnn", temp_out)
+            builder.run(data_processor, 2, "cnn", temp_out)
             # Act + Assert
             model = model_fn(temp_out)
 
