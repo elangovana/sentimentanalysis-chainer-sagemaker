@@ -5,7 +5,7 @@ import chainer
 
 
 class MovieDatasetIterator(chainer.dataset.iterator.Iterator):
-    def __init__(self, file, has_header=False, delimiter=",", quote_character='"', encoding='utf-8',
+    def __init__(self, file, has_header=False, delimiter=",", quote_character='"', encoding='latin',
                  use_in_memory_shuffle=True):
         super(MovieDatasetIterator, self).__init__()
         self.use_in_memory_shuffle = use_in_memory_shuffle
