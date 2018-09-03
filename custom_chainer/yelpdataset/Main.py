@@ -2,7 +2,7 @@ import argparse
 import logging
 import os
 
-from dataprep.Splitter import Splitter
+from yelpdataset.Splitter import Splitter
 
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(level=logging.INFO, format=FORMAT)

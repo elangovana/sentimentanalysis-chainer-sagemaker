@@ -5,7 +5,7 @@ import os
 import chainer
 from chainer import iterators
 
-import dataprep.YelpChainerDataset
+import yelpdataset.YelpChainerDataset
 
 
 class Splitter:
@@ -30,11 +30,11 @@ class Splitter:
 
         # Prepare dataset
         if os.path.isfile(self.file_or_dir):
-            dataset = dataprep.YelpChainerDataset.YelpChainerDataset(self.file_or_dir, delimiter=self.delimiter,
-                                                                     encoding=self.encoding,
-                                                                     quote_character=self.quote_character,
-                                                                     has_header=self.has_header,
-                                                                     use_in_memory_shuffle=use_in_memory_shuffle)
+            dataset = yelpdataset.YelpChainerDataset.YelpChainerDataset(self.file_or_dir, delimiter=self.delimiter,
+                                                                        encoding=self.encoding,
+                                                                        quote_character=self.quote_character,
+                                                                        has_header=self.has_header,
+                                                                        use_in_memory_shuffle=use_in_memory_shuffle)
         else:
             dataset = chainer.datasets.ConcatenatedDataset(
                 *self._get_dataset_array(self.file_or_dir, use_in_memory_shuffle=use_in_memory_shuffle))
@@ -75,11 +75,11 @@ class Splitter:
         for f in os.listdir(base_dir):
             full_path = os.path.join(base_dir, f)
             datasets.append(
-                dataprep.YelpChainerDataset.YelpChainerDataset(full_path, delimiter=self.delimiter,
-                                                               has_header=self.has_header,
-                                                               encoding=self.encoding,
-                                                               quote_character=self.quote_character,
-                                                               use_in_memory_shuffle=use_in_memory_shuffle))
+                yelpdataset.YelpChainerDataset.YelpChainerDataset(full_path, delimiter=self.delimiter,
+                                                                  has_header=self.has_header,
+                                                                  encoding=self.encoding,
+                                                                  quote_character=self.quote_character,
+                                                                  use_in_memory_shuffle=use_in_memory_shuffle))
 
         return datasets
 

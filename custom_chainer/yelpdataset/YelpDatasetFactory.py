@@ -1,5 +1,5 @@
-from dataprep.YelpChainerDataset import YelpChainerDataset
-from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
+from yelpdataset.YelpChainerDataset import YelpChainerDataset
+from yelpdataset.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
 
 class YelpDatasetFactory:

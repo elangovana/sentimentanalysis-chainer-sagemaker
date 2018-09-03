@@ -8,7 +8,7 @@ import chainer
 import TextClassifier
 from Train import Train
 from VocabularyBuilder import VocabularyBuilder
-from dataprep.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
+from yelpdataset.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
 from encoders.BOWNLPEncoder import BOWMLPEncoder
 from encoders.CNNEncoder import CNNEncoder
