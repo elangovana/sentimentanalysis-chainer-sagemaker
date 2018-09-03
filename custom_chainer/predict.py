@@ -1,11 +1,12 @@
-import argparse
 import csv
 import json
 import sys
 from io import StringIO
+
 import chainer
-from utils.NlpUtils import normalize_text, split_text, transform_to_array
+
 import gpu_utils
+from utils.NlpUtils import normalize_text, split_text, transform_to_array
 
 
 # #TODO: Cleanup code
@@ -101,8 +102,6 @@ def run_batch(gpu, model, vocab, setup_json, batchsize=64):
             batch = []
     if batch:
         predict_batch(batch)
-
-
 
 
 def get_formatted_input(request_body, request_content_type):
