@@ -30,16 +30,23 @@ class MovieDatasetIteratorProcessor(chainer.dataset.iterator.Iterator):
 
     def __getitem__(self, idx):
         record = self.iterator[idx]
+        self.logger.debug("Reading index {}, record {}".format(idx, record))
         tokens = self.extract_tokens(record[0])
-        # construct array, so use word index from vocab
-        tokens_index = make_array(tokens, self.vocab)
-        result = (tokens_index)
+        self.logger.debug("Parsed into tokens {}".format(tokens))
+        result = (tokens)
         if self.has_label(record):
-            result = (tokens_index, record[1])
+            result = (tokens, record[1])
         return result
 
     def __len__(self):
         return len(self.iterator)
+
+    def __iter__(self):
+        return self.items()
+
+    def items(self):
+        for i in range(0, len(self)):
+            yield self[i]
 
     def extract_tokens(self, review_text):
         tokens = split_text(normalize_text(review_text), False)

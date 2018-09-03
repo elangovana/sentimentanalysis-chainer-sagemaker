@@ -1,11 +1,7 @@
 import csv
 import io
 import logging
-
 import chainer
-import numpy
-
-from utils.NlpUtils import split_text, normalize_text, make_vocab, transform_to_array
 
 
 class MovieDatasetIterator(chainer.dataset.iterator.Iterator):
@@ -33,7 +29,7 @@ class MovieDatasetIterator(chainer.dataset.iterator.Iterator):
         self._log_accessed += 1
         if self._log_accessed % 500 == 0:
             self.logger.debug("Accessed {} with {} lines {} times so far..".format(self.filepath, self.getcount(),
-                                                                                    self._log_accessed))
+                                                                                   self._log_accessed))
         self.logger.debug(
             "Accessed index {} of file {} which has a total {} lines. Total access {} times so far..".format(idx,
                                                                                                              self.filepath,
@@ -93,6 +89,13 @@ class MovieDatasetIterator(chainer.dataset.iterator.Iterator):
         if self.length is None:
             self.length = self.getcount()
         return self.length
+
+    def __iter__(self):
+        return self.items()
+
+    def items(self):
+        for i in range(0, len(self)):
+            yield self[i]
 
     def getcount(self):
         total_records = 0
