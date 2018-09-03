@@ -34,7 +34,6 @@ class TestMergeDataset(TestCase):
                 with tempfile.TemporaryFile(mode="w+") as outhandle:
                     sut(poshandle, neghandle, outhandle)
                     outhandle.seek(0)
-                    x = outhandle.readlines()
                     outhandle.seek(0)
                     outlines = len(outhandle.readlines())
 
