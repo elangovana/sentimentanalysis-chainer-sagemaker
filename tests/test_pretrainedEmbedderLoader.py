@@ -1,9 +1,6 @@
 from io import StringIO
-import random
 from unittest import TestCase
 import numpy as np
-
-from encoders.PretrainedEmbedder import PretrainedEmbedder
 from encoders.PretrainedEmbedderLoader import PretrainedEmbedderLoader
 
 
