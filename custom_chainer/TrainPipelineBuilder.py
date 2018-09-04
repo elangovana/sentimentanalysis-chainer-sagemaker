@@ -19,7 +19,8 @@ class TrainPipelineBuilder:
     def __init__(self, data_has_header=True, batchsize=64, char_based=False, dropout=.5, epoch=10, gpus=None,
                  no_layers=1,
                  embed_dim=300, embedding_file=None, max_vocab_size=20000, min_word_frequency=5,
-                 best_model_snapshot_name='best_model.npz'):
+                 best_model_snapshot_name='best_model.npz', learning_rate=.0001):
+        self.learning_rate = learning_rate
         self.best_model_snapshot_name = best_model_snapshot_name
         self.data_has_header = data_has_header
         self.min_word_frequency = min_word_frequency
@@ -94,7 +95,7 @@ class TrainPipelineBuilder:
 
         encoder = self._get_encoder(encoder_name, vocab, weights, self.no_layers, self.embed_dim, self.dropout)
 
-        model = self.text_classifier(encoder, n_class)
+        model = self.text_classifier(encoder, n_class, dropout=self.dropout)
 
         train = self.trainer(encoder=encoder, vocab=vocab, out_dir=output_dir,
                              epoch=self.epoch, batchsize=self.batchsize, gpus=self.gpus)
@@ -104,7 +105,7 @@ class TrainPipelineBuilder:
         train_data = transform_to_array(dataset_iterator, vocab, with_label=True)
         test_data = transform_to_array(validationset_iterator, vocab, with_label=True)
 
-        train(train_data, test_data, model, self.best_model_snapshot_name)
+        train(train_data, test_data, model, self.best_model_snapshot_name, self.learning_rate)
 
     def persist(self, out_path, encoder_name, n_class, vocab, weights):
         if not os.path.isdir(out_path):

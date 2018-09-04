@@ -26,7 +26,7 @@ class Train:
         return logging.getLogger(__name__)
 
 
-    def __call__(self, train, test, classifier, snapshot_model_name):
+    def __call__(self, train, test, classifier, snapshot_model_name, learning_rate):
         # Has to be the first line so that the args can be persisted
 
 
@@ -56,7 +56,7 @@ class Train:
             classifier.to_gpu()  # Copy the model to the GPU
 
         # Setup an optimizer
-        optimizer = chainer.optimizers.SGD()
+        optimizer = chainer.optimizers.SGD(lr=learning_rate)
         optimizer.setup(classifier)
         optimizer.add_hook(chainer.optimizer.WeightDecay(1e-4))
 

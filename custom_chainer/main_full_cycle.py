@@ -48,7 +48,8 @@ def train():
                         help='Number of layers of RNN or MLP following CNN')
     parser.add_argument('--dropout', '-d', type=float, default=0.5,
                         help='Dropout rate')
-
+    parser.add_argument('--learning-rate', '-d', type=float, default=0.0001,
+                        help='Dropout rate')
     parser.add_argument('--model', '-model', default='cnn',
                         choices=['cnn', 'rnn', 'bow'],
                         help='Name of encoder model type.')
@@ -77,6 +78,7 @@ def train():
     epoch = args.epoch
     out = args.out
     n_class = n_classes[dataset_type]
+    learning_rate = args.learning_rate
 
     pretrained_embeddings = None
     if (args.pretrained_embed_dir is not None and args.pretrained_embed is not None):
@@ -85,7 +87,7 @@ def train():
     builder = TrainPipelineBuilder(data_has_header=False, batchsize=batchsize, char_based=char_based, dropout=dropout,
                                    epoch=epoch, gpus=gpus, no_layers=no_layers,
                                    embed_dim=unit, embedding_file=pretrained_embeddings, max_vocab_size=20000,
-                                   min_word_frequency=5)
+                                   min_word_frequency=5, learning_rate=learning_rate)
 
     builder.run(training_set, n_class, encoder_name, out, validationset_iterator=validation_set)
 
