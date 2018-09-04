@@ -49,7 +49,7 @@ def train():
     parser.add_argument('--dropout', '-d', type=float, default=0.5,
                         help='Dropout rate')
     parser.add_argument('--learning-rate', '-d', type=float, default=0.0001,
-                        help='Dropout rate')
+                        help='learning rate')
     parser.add_argument('--model', '-model', default='cnn',
                         choices=['cnn', 'rnn', 'bow'],
                         help='Name of encoder model type.')
