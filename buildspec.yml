@@ -15,6 +15,7 @@ phases:
       - pip install -r custom_chainer/requirements_test_only.txt
 
       - pyflakes custom_chainer/**/*.py
+      - export PYTHONPATH=./custom_chainer
       - pytest
 
   post_build:
