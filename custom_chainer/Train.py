@@ -56,7 +56,7 @@ class Train:
             classifier.to_gpu()  # Copy the model to the GPU
 
         # Setup an optimizer
-        optimizer = chainer.optimizers.Adam()
+        optimizer = chainer.optimizers.SGD()
         optimizer.setup(classifier)
         optimizer.add_hook(chainer.optimizer.WeightDecay(1e-4))
 

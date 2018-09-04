@@ -79,7 +79,7 @@ class TrainPipelineBuilder:
         # Split data set if no validation set
         if validationset_iterator is None:
             dataset_iterator, validationset_iterator = chainer.datasets.split_dataset_random(dataset_iterator, int(
-                len(dataset_iterator) * 0.7) + 1, seed=777)
+                len(dataset_iterator) * 0.9) + 1, seed=777)
 
         word_count_dict = get_counts_by_token(dataset_iterator)
 
