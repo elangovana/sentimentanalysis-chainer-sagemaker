@@ -48,7 +48,7 @@ def train():
                         help='Number of layers of RNN or MLP following CNN')
     parser.add_argument('--dropout', '-d', type=float, default=0.5,
                         help='Dropout rate')
-    parser.add_argument('--learning-rate', '-d', type=float, default=0.0001,
+    parser.add_argument('--learning-rate', type=float, default=0.0001,
                         help='learning rate')
     parser.add_argument('--model', '-model', default='cnn',
                         choices=['cnn', 'rnn', 'bow'],
