@@ -1,11 +1,8 @@
-import csv
-import io
 import logging
 
 import chainer
-import numpy
 
-from utils.NlpUtils import split_text, normalize_text, make_vocab, transform_to_array, make_array
+from utils.NlpUtils import split_text, normalize_text, make_vocab
 
 
 # TODO: Clean up this class

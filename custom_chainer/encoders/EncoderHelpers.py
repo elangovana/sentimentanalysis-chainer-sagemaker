@@ -53,7 +53,7 @@ def block_embed(embed, x, dropout=0.):
     """
     e = embed(x)
     e = F.dropout(e, ratio=dropout)
-    B, L, W = 0, 1, 2
+    #B, L, W = 0, 1, 2
 
     #e = F.transpose(e, (0, 2, 1))
     e = e[:, None, :, :]

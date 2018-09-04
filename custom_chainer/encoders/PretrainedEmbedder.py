@@ -1,7 +1,5 @@
 import logging
 
-import chainer
-import numpy as np
 from chainer.backends import cuda
 
 

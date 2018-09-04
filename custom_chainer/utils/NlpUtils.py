@@ -1,5 +1,4 @@
 import collections
-import io
 
 import numpy
 
