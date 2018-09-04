@@ -20,9 +20,9 @@ class TestMoviesDatasetIteratorProcesor(TestCase):
         actual = sut[1]
 
         # Assert
-        expected = (numpy.asarray([1, 0, 0, 0, 0, 0, 3], dtype=int), 0)
+        expected = (numpy.asarray(["splash", "even", "greater", "than", "arnold", "schwarzenegger"], dtype=str), 0)
         self.assertEqual(len(actual), len(expected))
-        self.assertSequenceEqual(actual[0].tolist(), expected[0].tolist())
+        self.assertSequenceEqual(actual[0], expected[0].tolist())
         self.assertEqual(actual[1], expected[1])
 
     def test__getline_without_vocab(self):
@@ -35,7 +35,7 @@ class TestMoviesDatasetIteratorProcesor(TestCase):
         actual = sut[1]
 
         # Assert
-        expected_token_len = 4
+        expected_token_len = 3
         self.assertEqual(len(actual[0]), expected_token_len)
 
     def test__len(self):
