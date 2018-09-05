@@ -1,9 +1,13 @@
 import argparse
+import logging
 
 from dataformatter.blazingTextFormatter import BlazingTextFormatter
 from datasetyelp.YelpChainerDataset import YelpChainerDataset
 from datasetyelp.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
 
+FORMAT = '%(asctime)s %(message)s'
+logging.basicConfig(level=logging.INFO, format=FORMAT)
+logger = logging.getLogger(__name__)
 
 class YelpBlazingTextFormatter:
     def __init__(self, formatter=None, label_extractor=None, text_extractor=None):
@@ -31,7 +35,11 @@ if __name__ == '__main__':
                         help="The output file")
     args = parser.parse_args()
 
+
+    logger.info("Starting ... ")
     formatter = YelpBlazingTextFormatter()
     iterator = YelpChainerDataset(args.yelpreviewfile, has_header=True)
+
     with open(args.outfile, "w") as out:
         formatter(iterator, out)
+    logger.info("Completed ... ")
