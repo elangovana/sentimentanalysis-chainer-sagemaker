@@ -4,26 +4,31 @@ import csv
 import nltk
 import threading
 
+
 class BlazingTextFormatter:
     def __init__(self):
+        # TODO: Move this to set up, otherwise hard to unit test
         nltk.download('punkt')
-        # self.queue = multiprocessing.Queue()
 
     def format(self, iterator, label_index, text_index, outputhandle, max_process=multiprocessing.cpu_count() - 1):
+        # Initialise queues, processor pool
         produce_pool = Pool(processes=max_process)
         m = multiprocessing.Manager()
         q = m.Queue()
         csv_writer = csv.writer(outputhandle, delimiter=' ', lineterminator='\n')
-        # Transform
-        transformed_rows = [produce_pool.apply(self._producer, args=(x[label_index], x[text_index], q,)) for x in iterator]
+
+        # Multiprocess format
+        [produce_pool.apply(self._producer, args=(x[label_index], x[text_index], q,)) for x in iterator]
+
+        # Start the consumer thread
         consumer = threading.Thread(target=self._consumer, args=(q, csv_writer))
         consumer.start()
+
+        # Close processes and thread
         produce_pool.close()
         produce_pool.join()
         q.put(None)
-
         consumer.join()
-        return transformed_rows
 
     def _producer(self, label, text, q):
         line = self.format_line(text, label)
@@ -33,9 +38,10 @@ class BlazingTextFormatter:
     def _consumer(self, q, csv_writer):
         while True:
             item = q.get()
+            # if item poison pill quit
             if item is None:
                 break
-
+            # write item to file
             self._write_line(csv_writer, item)
 
     def format_line(self, text, label):
