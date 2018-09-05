@@ -49,16 +49,22 @@ class YelpReviewDatasetProcessor(chainer.dataset.iterator.Iterator):
         # Assumes has label if the record has all the fields
         return len(record) == 9
 
-    def get_label(self, record):
+    @staticmethod
+    def get_label(record):
         assert len(record) == 9
 
         stars = int(record[3])
+        label = YelpReviewDatasetProcessor.convert_rating_to_sentiment(stars)
+
+        return label
+
+    @staticmethod
+    def convert_rating_to_sentiment(stars):
         label = 0
         if stars > 3:
             label = 1
         elif label < 3:
             label = -1
-
         return label
 
     def __iter__(self):
@@ -68,7 +74,8 @@ class YelpReviewDatasetProcessor(chainer.dataset.iterator.Iterator):
         for i in range(0, len(self)):
             yield self[i]
 
-    def get_review_text(self, record):
+    @staticmethod
+    def get_review_text(record):
         if len(record) == 9:
             return record[5]
         if len(record) == 1:
