@@ -95,7 +95,7 @@ class TrainPipelineBuilder:
 
         encoder = self._get_encoder(encoder_name, vocab, weights, self.no_layers, self.embed_dim, self.dropout)
 
-        model = self.text_classifier(encoder, n_class, dropout=self.dropout)
+        model = self.text_classifier(encoder, n_class)
 
         train = self.trainer(encoder=encoder, vocab=vocab, out_dir=output_dir,
                              epoch=self.epoch, batchsize=self.batchsize, gpus=self.gpus)
