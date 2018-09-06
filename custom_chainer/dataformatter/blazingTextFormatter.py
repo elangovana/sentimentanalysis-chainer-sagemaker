@@ -5,6 +5,7 @@ import nltk
 import threading
 import logging
 
+
 class BlazingTextFormatter:
     def __init__(self):
         # TODO: Move this to set up, otherwise hard to unit test
@@ -42,11 +43,14 @@ class BlazingTextFormatter:
         return line
 
     def _consumer(self, q, csv_writer):
+        i = 0
         while True:
             item = q.get()
             # if item poison pill quit
             if item is None:
                 break
+            i += 1
+            if i%10000 == 0: self.logger.info("Formatted {} lines so far".format(i))
             # write item to file
             self._write_line(csv_writer, item)
 
