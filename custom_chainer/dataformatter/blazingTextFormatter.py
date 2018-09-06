@@ -52,7 +52,7 @@ class BlazingTextFormatter:
             if item is None:
                 break
             i += 1
-            if i%500 == 0: self.logger.info("Formatted {} lines so far".format(i))
+            if i%10000 == 0: self.logger.info("Formatted {} lines so far".format(i))
             # write item to file
             self._write_line(csv_writer, item)
 
