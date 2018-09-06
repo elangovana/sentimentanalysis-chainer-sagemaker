@@ -4,6 +4,7 @@ import logging
 import os
 
 import chainer
+import numpy as np
 
 import TextClassifier
 from Train import Train
@@ -164,6 +165,7 @@ class TrainPipelineBuilder:
 
         with open(weights_path) as weights_handle:
             weights = json.load(weights_handle)
+            weights = np.asarray(weights)
 
         n_class = setup_json['n_class']
         dropout = setup_json['dropout']

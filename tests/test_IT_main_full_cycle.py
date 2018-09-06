@@ -5,8 +5,6 @@ from unittest import TestCase
 import os
 from ddt import ddt, data, unpack
 
-
-
 from TrainPipelineBuilder import TrainPipelineBuilder
 from datasetyelp.YelpChainerDataset import YelpChainerDataset
 from datasetyelp.YelpReviewDatasetProcessor import YelpReviewDatasetProcessor
@@ -23,12 +21,13 @@ class TestModel_fn(TestCase):
     def setUp(self):
         fileConfig(os.path.join(os.path.dirname(__file__), 'logger.ini'))
 
+    @data(("data/sample_train.csv", "data", "data/sample_test.csv", 300, None, False)
+        , ("data/sample_train.csv", "data", "data/sample_test.csv", 3, "data/sample_embed_3d.txt", False)
+        , ("data/sample_train.csv", "data", "data/sample_test.csv", 3, "data/sample_embed_3d.txt", True)
 
-    @data(("data/sample_train.csv", "data", "data/sample_test.csv", 300, None)
-        , ("data/sample_train.csv", "data", "data/sample_test.csv", 3, "data/sample_embed_3d.txt")
           )
     @unpack
-    def test_model_fn(self, dataset, out_dir, testdata, unit, embed_file):
+    def test_model_fn(self, dataset, out_dir, testdata, unit, embed_file, model_restart):
         # Arrange
 
         full_dataset_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), dataset)
@@ -43,7 +42,6 @@ class TestModel_fn(TestCase):
             test_data_string = Path(full_testset_path).read_text()
             # Run Train
 
-
             builder = TrainPipelineBuilder(data_has_header=True, batchsize=10, char_based=False,
                                            dropout=.5,
                                            epoch=10, gpus=None, no_layers=1,
@@ -53,6 +51,10 @@ class TestModel_fn(TestCase):
             iterator = YelpChainerDataset(full_dataset_path, has_header=True)
             data_processor = YelpReviewDatasetProcessor(iterator)
             builder.run(data_processor, 3, "cnn", temp_out)
+            #TODO: Refactor this test and probably the sut
+            if model_restart:
+                builder.run(data_processor, 3, "cnn", os.path.join(temp_out, "restart"), model_dir=temp_out)
+
             # Act + Assert
             model = model_fn(temp_out)
 
@@ -84,7 +86,7 @@ class TestModel_fn(TestCase):
             test_data_string = Path(full_testset_path).read_text()
             # Run Train
 
-            builder = TrainPipelineBuilder( data_has_header=True, batchsize=10, char_based=False,
+            builder = TrainPipelineBuilder(data_has_header=True, batchsize=10, char_based=False,
                                            dropout=.5,
                                            epoch=10, gpus=None, no_layers=1,
                                            embed_dim=unit, embedding_file=full_embed, max_vocab_size=20000,
@@ -100,6 +102,6 @@ class TestModel_fn(TestCase):
             prediction = predict_fn(input_object, model)
             actual = output_fn(prediction, "text/plain")
 
-        #assert
+        # assert
         print(actual)
         self.assertIsNotNone(actual)
