@@ -1,10 +1,15 @@
 from io import StringIO
+from logging.config import fileConfig
 from unittest import TestCase
+
+import os
 
 from dataformatter.blazingTextFormatter import BlazingTextFormatter
 
 
 class TestBlazingTextFormatter(TestCase):
+    def setUp(self):
+        fileConfig(os.path.join(os.path.dirname(__file__), 'logger.ini'))
 
     def test_format(self):
         # Arrange

@@ -50,13 +50,13 @@ class TestTelpChainerDataset(TestCase):
         , ("data/yelp_review_short_no_header.csv", False, 3)
           )
     @unpack
-    def test_getcount(self, file, has_header, expected_total):
+    def test___getlen(self, file, has_header, expected_total):
         # Arrange
         full_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), file)
         sut = YelpChainerDataset(full_file_path, has_header=has_header)
 
         # Act
-        actual = sut.getcount()
+        actual = len(sut)
 
         # Assert
         self.assertEqual(actual, expected_total)

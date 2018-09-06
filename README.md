@@ -16,6 +16,7 @@ python ./custom_chainer/dataprep/Main.py $inputyelpreviewfile $outputdatadir shu
 ### Convert to blazing text format 
 **Note: Only required if using blazing text classification**
 ```bash
+export PYTHONPATH=./custom_chainer
 python custom_chainer/datasetyelp/main_blazingtextformatter.py ./tests/data/sample_train.csv /tmp/btext.txt
 
 ```

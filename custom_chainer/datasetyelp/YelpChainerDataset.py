@@ -25,12 +25,12 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
         # reporting progress...
         self._log_accessed += 1
         if self._log_accessed % 500 == 0:
-            self._logger.debug("Accessed {} with {} lines {} times so far..".format(self.filepath, self.getcount(),
+            self._logger.debug("Accessed {} with {} lines {} times so far..".format(self.filepath, len(self),
                                                                                     self._log_accessed))
         self._logger.debug(
             "Accessed index {} of file {} which has a total {} lines. Total access {} times so far..".format(idx,
                                                                                                              self.filepath,
-                                                                                                             self.getcount(),
+                                                                                                             len(self),
                                                                                                              self._log_accessed))
         # If use_in_memory, load file contents to memory..
         if self.use_in_memory_shuffle:
@@ -57,6 +57,7 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
     def _get_line_from_memory(self, idx):
 
         if self.line_dict is None:
+            self._logger.info("Loading lines into memory")
             # Load the contents into memory and store as hash
             with io.open(self.filepath, encoding=self.encoding) as handle:
                 reader = self._get_reader(handle)
@@ -91,14 +92,14 @@ class YelpChainerDataset(chainer.dataset.iterator.Iterator):
 
     def __len__(self):
         if self.length is None:
-            self.length = self.getcount()
+            self.length = self._getcount()
         return self.length
 
-    def getcount(self):
+    def _getcount(self):
         total_records = 0
         # Get file length
         with io.open(self.filepath, encoding=self.encoding) as handle:
-            self._logger.debug("Getting count for file {}".format(self.filepath))
+            self._logger.info("Getting count for file {}".format(self.filepath))
             csv_reader = self._get_reader(handle)
             # Skip first line if header
             if self.has_header: next(csv_reader)

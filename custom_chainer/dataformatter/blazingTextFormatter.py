@@ -3,12 +3,16 @@ from multiprocessing import Pool
 import csv
 import nltk
 import threading
-
+import logging
 
 class BlazingTextFormatter:
     def __init__(self):
         # TODO: Move this to set up, otherwise hard to unit test
         nltk.download('punkt')
+
+    @property
+    def logger(self):
+        return logging.getLogger(__name__)
 
     def format(self, iterator, label_index, text_index, outputhandle, max_process=multiprocessing.cpu_count() - 1):
         # Initialise queues, processor pool
@@ -18,7 +22,9 @@ class BlazingTextFormatter:
         csv_writer = csv.writer(outputhandle, delimiter=' ', lineterminator='\n')
 
         # Multiprocess format
+        self.logger.info("Running process pool to parse text")
         [produce_pool.apply(self._producer, args=(x[label_index], x[text_index], q,)) for x in iterator]
+        self.logger.info("Completed process pool")
 
         # Start the consumer thread
         consumer = threading.Thread(target=self._consumer, args=(q, csv_writer))
