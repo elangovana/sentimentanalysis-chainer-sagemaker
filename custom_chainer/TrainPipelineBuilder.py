@@ -76,7 +76,7 @@ class TrainPipelineBuilder:
     def trainer(self, value):
         self.__trainer__ = value
 
-    def run(self, dataset_iterator, n_class, encoder_name, output_dir, validationset_iterator=None):
+    def run(self, dataset_iterator, n_class, encoder_name, output_dir, validationset_iterator=None, model_path = None):
         # Split data set if no validation set
         if validationset_iterator is None:
             dataset_iterator, validationset_iterator = chainer.datasets.split_dataset_random(dataset_iterator, int(
@@ -102,8 +102,13 @@ class TrainPipelineBuilder:
 
         self.persist(output_dir, encoder_name, n_class, vocab, weights)
 
+
+
         train_data = transform_to_array(dataset_iterator, vocab, with_label=True)
         test_data = transform_to_array(validationset_iterator, vocab, with_label=True)
+
+        # Load existing weights of the path is provided
+        if model_path is not None: chainer.serializers.load_npz(model_path, model)
 
         train(train_data, test_data, model, self.best_model_snapshot_name, self.learning_rate)
 
