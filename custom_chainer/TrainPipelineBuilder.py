@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os
 
 import chainer
@@ -44,6 +45,10 @@ class TrainPipelineBuilder:
         self.__vocab_builder__ = self.__vocab_builder__ or VocabularyBuilder(max_vocab_size=self.max_vocab_size,
                                                                              min_word_frequency=self.min_word_frequency)
         return self.__vocab_builder__
+
+    @property
+    def logger(self):
+        return logging.getLogger(__name__)
 
     @vocab_builder.setter
     def vocab_builder(self, value):
@@ -108,7 +113,9 @@ class TrainPipelineBuilder:
         test_data = transform_to_array(validationset_iterator, vocab, with_label=True)
 
         # Load existing weights of the path is provided
-        if model_path is not None: chainer.serializers.load_npz(model_path, model)
+        if model_path is not None:
+            self.logger.info("Loading weights from existing model")
+            chainer.serializers.load_npz(model_path, model)
 
         train(train_data, test_data, model, self.best_model_snapshot_name, self.learning_rate)
 
