@@ -8,14 +8,13 @@ from gpu_utils import convert_seq
 
 # TODO: Cleanup code
 class Train:
-    def __init__(self,encoder, vocab, out_dir, epoch, batchsize, gpus=None):
+    def __init__(self,vocab, out_dir, epoch, batchsize, gpus=None):
 
         self.batchsize = batchsize
         self.gpus = gpus or []
         self.epoch = epoch
         self.out_dir = out_dir
 
-        self.encoder = encoder
 
         self.vocab = vocab
 

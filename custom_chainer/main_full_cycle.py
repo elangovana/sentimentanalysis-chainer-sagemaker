@@ -15,7 +15,7 @@ def train():
     logger = logging.getLogger(__name__)
 
     datasets = {MovieDatasetFactory().name: MovieDatasetFactory(), YelpDatasetFactory().name: YelpDatasetFactory()}
-    n_classes ={MovieDatasetFactory().name: 2, YelpDatasetFactory().name: 3}
+    n_classes = {MovieDatasetFactory().name: 2, YelpDatasetFactory().name: 3}
 
     parser = argparse.ArgumentParser(
         description='Chainer example: Text Classification')
@@ -24,7 +24,6 @@ def train():
 
     parser.add_argument('--traindata', required=True,
                         help='The dataset file with respect to the train directory')
-
 
     parser.add_argument('--traindata-dir',
                         help='The directory containing training artifacts such as training data',
@@ -37,9 +36,7 @@ def train():
     parser.add_argument('--model-dir',
                         help='The directory containing model, if you want to reload existing weights',
                         default=os.environ.get('SM_CHANNEL_MODEL', None))
-    parser.add_argument('--model-name',
-                        help='The name of the model, if you want to reload existing weights',
-                        default="best_model.npz")
+
     parser.add_argument('--batchsize', '-b', type=int, default=64,
                         help='Number of records in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=30,
@@ -80,7 +77,7 @@ def train():
     no_layers = args.layer
     unit = args.unit
     dropout = args.dropout
-    gpus = [ g for g in range(0,args.gpu)]
+    gpus = [g for g in range(0, args.gpu)]
     epoch = args.epoch
     out = args.out
     n_class = n_classes[dataset_type]
@@ -90,16 +87,14 @@ def train():
     if (args.pretrained_embed_dir is not None and args.pretrained_embed is not None):
         pretrained_embeddings = os.path.join(args.pretrained_embed_dir, args.pretrained_embed)
 
-    model_path = None
-    if (args.model_dir is not None and args.model_name is not None):
-        model_path = os.path.join(args.model_dir, args.model_name)
+    model_dir = args.model_dir
 
     builder = TrainPipelineBuilder(data_has_header=False, batchsize=batchsize, char_based=char_based, dropout=dropout,
                                    epoch=epoch, gpus=gpus, no_layers=no_layers,
                                    embed_dim=unit, embedding_file=pretrained_embeddings, max_vocab_size=20000,
                                    min_word_frequency=5, learning_rate=learning_rate)
 
-    builder.run(training_set, n_class, encoder_name, out, validationset_iterator=validation_set, model_path=model_path)
+    builder.run(training_set, n_class, encoder_name, out, validationset_iterator=validation_set, model_dir=model_dir)
 
 
 def model_fn(model_dir):
@@ -111,7 +106,7 @@ def model_fn(model_dir):
                 model_full_path = root
                 break
 
-    model, vocab, setup_json = TrainPipelineBuilder.load(model_full_path)
+    model, vocab, setup_json, _ = TrainPipelineBuilder.load(model_full_path)
     return (model, vocab, setup_json)
 
 

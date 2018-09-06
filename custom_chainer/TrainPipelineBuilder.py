@@ -81,41 +81,38 @@ class TrainPipelineBuilder:
     def trainer(self, value):
         self.__trainer__ = value
 
-    def run(self, dataset_iterator, n_class, encoder_name, output_dir, validationset_iterator=None, model_path = None):
+    def run(self, dataset_iterator, n_class, encoder_name, output_dir, validationset_iterator=None, model_dir=None):
         # Split data set if no validation set
         if validationset_iterator is None:
             dataset_iterator, validationset_iterator = chainer.datasets.split_dataset_random(dataset_iterator, int(
                 len(dataset_iterator) * 0.9) + 1, seed=777)
 
-        word_count_dict = get_counts_by_token(dataset_iterator)
+        if model_dir is not None:
+            (model, vocab, setup_json, weights) = self.load(model_dir)
+        else:
 
-        filter = self.vocab_filter(word_count_dict, max_vocab_size=self.max_vocab_size,
-                                   min_frequency=self.min_word_frequency,
-                                   priority_words={UNKNOWN_WORD, EOS})
+            word_count_dict = get_counts_by_token(dataset_iterator)
 
-        weights, vocab = self.vocab_builder(dataset_iterator, self.embedding_file, embed_dim=self.embed_dim,
-                                            vocab_filter=filter)
+            filter = self.vocab_filter(word_count_dict, max_vocab_size=self.max_vocab_size,
+                                       min_frequency=self.min_word_frequency,
+                                       priority_words={UNKNOWN_WORD, EOS})
 
-        # Setup a model
+            weights, vocab = self.vocab_builder(dataset_iterator, self.embedding_file, embed_dim=self.embed_dim,
+                                                vocab_filter=filter)
 
-        encoder = self._get_encoder(encoder_name, vocab, weights, self.no_layers, self.embed_dim, self.dropout)
+            # Setup a model
 
-        model = self.text_classifier(encoder, n_class)
+            encoder = self._get_encoder(encoder_name, vocab, weights, self.no_layers, self.embed_dim, self.dropout)
 
-        train = self.trainer(encoder=encoder, vocab=vocab, out_dir=output_dir,
+            model = self.text_classifier(encoder, n_class)
+
+        train = self.trainer(vocab=vocab, out_dir=output_dir,
                              epoch=self.epoch, batchsize=self.batchsize, gpus=self.gpus)
 
         self.persist(output_dir, encoder_name, n_class, vocab, weights)
 
-
-
         train_data = transform_to_array(dataset_iterator, vocab, with_label=True)
         test_data = transform_to_array(validationset_iterator, vocab, with_label=True)
-
-        # Load existing weights of the path is provided
-        if model_path is not None:
-            self.logger.info("Loading weights from existing model")
-            chainer.serializers.load_npz(model_path, model)
 
         train(train_data, test_data, model, self.best_model_snapshot_name, self.learning_rate)
 
@@ -179,7 +176,7 @@ class TrainPipelineBuilder:
         model = TextClassifier.TextClassifier(encoder, n_class)
         chainer.serializers.load_npz(model_path, model)
 
-        return (model, vocab, setup_json)
+        return (model, vocab, setup_json, weights)
 
     @staticmethod
     def _get_encoder(encoder_name, vocab, weights, no_layers, embed_dim, dropout):

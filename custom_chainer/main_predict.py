@@ -6,7 +6,7 @@ from predict import run_batch, run_online
 
 def run_test(model_dir):
     # global model, vocab, setup
-    model, vocab, setup = TrainPipelineBuilder.load(model_dir)
+    model, vocab, setup, _ = TrainPipelineBuilder.load(model_dir)
     if args.gpu >= 0:
         run_batch(args.gpu, model, vocab, setup)
     else:
