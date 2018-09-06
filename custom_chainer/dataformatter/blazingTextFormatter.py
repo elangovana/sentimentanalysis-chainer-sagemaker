@@ -21,15 +21,17 @@ class BlazingTextFormatter:
         m = multiprocessing.Manager()
         q = m.Queue()
         csv_writer = csv.writer(outputhandle, delimiter=' ', lineterminator='\n')
+        # Start the consumer thread
+        consumer = threading.Thread(target=self._consumer, args=(q, csv_writer))
+        consumer.start()
 
         # Multiprocess format
         self.logger.info("Running process pool to parse text")
         [produce_pool.apply(self._producer, args=(x[label_index], x[text_index], q,)) for x in iterator]
         self.logger.info("Completed process pool")
 
-        # Start the consumer thread
-        consumer = threading.Thread(target=self._consumer, args=(q, csv_writer))
-        consumer.start()
+
+
 
         # Close processes and thread
         produce_pool.close()
@@ -50,7 +52,7 @@ class BlazingTextFormatter:
             if item is None:
                 break
             i += 1
-            if i%10000 == 0: self.logger.info("Formatted {} lines so far".format(i))
+            if i%500 == 0: self.logger.info("Formatted {} lines so far".format(i))
             # write item to file
             self._write_line(csv_writer, item)
 
