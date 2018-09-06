@@ -92,7 +92,7 @@ def train():
 
     model_path = None
     if (args.model_dir is not None and args.model_name is not None):
-        model_path = os.path.join(args.pretrained_embed_dir, args.pretrained_embed)
+        model_path = os.path.join(args.model_dir, args.model_name)
 
     builder = TrainPipelineBuilder(data_has_header=False, batchsize=batchsize, char_based=char_based, dropout=dropout,
                                    epoch=epoch, gpus=gpus, no_layers=no_layers,
